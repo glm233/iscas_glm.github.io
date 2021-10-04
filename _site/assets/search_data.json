@@ -1,0 +1,34 @@
+
+
+[
+  
+  
+    {
+      "title"    : "page is not found",
+      "url"      : "http://localhost:4000/404.html"
+    } ,
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+  
+    {
+      "title"    : "template page",
+      "category" : "Article",
+      
+      "url"      : "http://localhost:4000/2021/10/04/first/"
+    } 
+  
+]
+

@@ -1,0 +1,843 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" title="XSL Formatting" href="/rss.xsl" media="all" ?>
+
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>glm@iscas's homepage</title>
+        <description>glm@iscas's personal page</description>
+        <link>http://localhost:4000</link>
+        <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
+        
+            <item>
+                <title>template page</title>
+                <description>&lt;h1 id=&quot;前沿数据库调参工具部署踩坑及收获&quot;&gt;前沿数据库调参工具部署踩坑及收获&lt;/h1&gt;
+
+&lt;p&gt;前言：今年暑假有幸参加浙江大学软件学院暑期夏令营，我加入的是数据智能实验室，实验室里的老师也在7.5-7.6期间介绍了当下数据库前沿的一些发展方向以及实验室的主要研究。&lt;/p&gt;
+
+&lt;p&gt;我对其中AI for DB &amp;amp; DB for AI这个方向产生了极大的兴趣，老师在讲述过程中也提到了当下数据库中的一些重要配置参数还是由人工来完成，如果能够使用机器学习的方法收集好数据集，采用合适的模型进行训练，对系统当前的&lt;/p&gt;
+
+&lt;h3 id=&quot;ottertune使用&quot;&gt;Ottertune使用&lt;/h3&gt;
+
+&lt;p&gt;Ottertune是卡内基梅隆大学数据库研究组的学生和研究人员开发了的一款新工具 ，它可以针对 DBMS 配置开关自动查找较佳的设置。其目标是让每个人都可以轻松部署 DBMS，即使是毫无数据库管理专业知识的人。 与其他 DBMS 配置工具不同，OtterTune 利用在优化之前的 DBMS 部署期间获得的知识来优化新的部署。这可以显著缩短优化新 DBMS 部署所需的时间以及减少所需的资源。为此，OtterTune 维护了一个存储库，用于存储在之前的优化会话中收集的优化数据。它利用此类数据来构建机器学习 (ML) 模型，以捕获 DBMS 对不同配置的响应方式。OtterTune 使用这些模型来指导新应用程序的试验，进而推荐可改善最终目标 (例如，减少延迟或提高吞吐量) 的设置。&lt;/p&gt;
+
+&lt;p&gt;在布置任务早期，我就下载了Ottertune的源码 但是一直没能部署成功，之后也在他们商业化的网站上注册账户，想获取帮助，也发送了如下邮件:&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://imgtu.com/i/4XgptS&quot;&gt;&lt;img src=&quot;https://z3.ax1x.com/2021/10/04/4XgptS.png&quot; alt=&quot;4XgptS.png&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;但是一直没有回复，在网络上找找了相关的资料，发现是一个本科生组的毕业设计性质的东西，现在也很久没有维护了，当我按着里面的开发文档部署时（硬件环境我只有两台服务器 自费买的、基本按照教程一样做下去发现总是会有软件包损坏、依赖库安装不上的问题）耽误了两三天也一直没做成，最终只能作罢。&lt;/p&gt;
+
+&lt;p&gt;虽然没有安装上OtterTune环境，但是大概整理了OtterTune这款工具的基本原理，也算是做个笔记：&lt;/p&gt;
+
+&lt;h4 id=&quot;ottertune-工作原理&quot;&gt;OtterTune 工作原理&lt;/h4&gt;
+
+&lt;p&gt;下图显示了 OtterTune 的组件和工作流。&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://d2908q01vomqb2.cloudfront.net/472b07b9fcf2c2451e8781e944bf5f77cd8457c8/2017/09/01/1.gif&quot;&gt;&lt;img src=&quot;https://d2908q01vomqb2.cloudfront.net/472b07b9fcf2c2451e8781e944bf5f77cd8457c8/2017/09/01/1.gif&quot; alt=&quot;img&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;在新的优化会话开始时，用户须告知 OtterTune 要优化的最终目标 (例如，延迟或吞吐量)。客户端控制器连接到目标 DBMS，并收集其 Amazon EC2 实例类型和当前配置。&lt;/p&gt;
+
+&lt;p&gt;然后，控制器开始第一个观察期，观察 DBMS 并记录最终目标。该观察期结束后，控制器收集 DBMS 中的内部指标，例如，MySQL 从磁盘读取的页数以及写入磁盘的页数。控制器向优化管理器返回最终目标和内部指标。&lt;/p&gt;
+
+&lt;p&gt;OtterTune 的优化管理器收到指标时，将指标存储在存储库中。OtterTune 根据结果计算控制器应在目标 DBMS 上安装的下一个配置。优化管理器向控制器返回此配置，并估计优化此配置能够获得的预期改进。用户可以决定是继续还是终止优化会话。&lt;/p&gt;
+
+&lt;h4 id=&quot;机器学习管道&quot;&gt;机器学习管道&lt;/h4&gt;
+
+&lt;p&gt;下图显示了在数据流过 OtterTune 的 ML 管道时如何得到处理。所有观察结果都保存在 OtterTune 的存储库中。&lt;/p&gt;
+
+&lt;p&gt;OtterTune 先将观察结果传入 Workload Characterization 组件。此组件确定能够最准确地捕获不同工作负载的性能差异和显著特点的一小部分 DBMS 指标。&lt;/p&gt;
+
+&lt;p&gt;接下来，Knob Identification 组件生成对 DBMS 性能影响最大的开关的排序列表。OtterTune 随后将所有此类信息馈送到 Automatic Tuner。此组件将目标 DBMS 工作负载映射到其数据存储库中最相似的工作负载，并再次使用此工作负载数据生成更好的配置。&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://d2908q01vomqb2.cloudfront.net/472b07b9fcf2c2451e8781e944bf5f77cd8457c8/2017/09/01/2.gif&quot;&gt;&lt;img src=&quot;https://d2908q01vomqb2.cloudfront.net/472b07b9fcf2c2451e8781e944bf5f77cd8457c8/2017/09/01/2.gif&quot; alt=&quot;img&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;ML 管道中的每个组件：&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Workload Characterization&lt;/strong&gt;： OtterTune 使用 DBMS 的内部运行时指标来确定工作负载行为方式的特征。这些指标准确代表了工作负载，因为它们捕获了其运行时行为的许多方面。不过，许多指标都是多余的：一些指标其实是相同的，只是单位不同；还有一些指标表示 DBMS 的各独立组件，但它们的值高度相关。必须清除多余的指标，这可以降低使用这些指标的 ML 模型的复杂性。为此，我们基于 DBMS 指标的关联模式将它们集群化。然后，我们从每个集群中选择一个具有代表性的指标，具体而言就是最接近集群中心的指标。ML 管道中的后续组件会使用这些指标。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Knob Identification&lt;/strong&gt;：DBMS 可能拥有数以百计的开关，但只有一小部分能够影响 DBMS 的性能。OtterTune 利用常用的功能选取技术 (称为 Lasso) 来确定严重影响系统整体性能的开关。通过向存储库中的数据应用此项技术，OtterTune 可以确定 DBMS 开关的重要性顺序。&lt;/p&gt;
+
+&lt;p&gt;然后，在提供配置建议时，OtterTune 必须决定使用多少个开关。使用过多开关会明显增加 OtterTune 的优化时间。使用过少开关则会导致 OtterTune 找不到最佳配置。为了自动完成此流程，OtterTune 使用一种增量方法。这种方法逐渐增加优化会话中使用的开关数。使用这种方法，OtterTune 可以先针对一小部分最重要的开关探究并优化配置，然后再扩展范围，考虑其他开关。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Automatic Tuner&lt;/strong&gt;：Automated Tuning 组件在每个观察期后执行两步分析，确定 OtterTune 应该推荐的配置。&lt;/p&gt;
+
+&lt;p&gt;首先，系统使用在 Workload Characterization 组件中确定的指标的性能数据，来确定上一个优化会话中最能代表目标 DBMS 工作负载的工作负载。它将会话的指标与之前工作负载的指标进行比较，确定对不同开关设置做出相同反应的指标。&lt;/p&gt;
+
+&lt;p&gt;然后，OtterTune 选择另一个开关配置进行尝试。它会根据收集的数据以及存储库中最相似工作负载的数据，调整统计模型。使用此模型，OtterTune 可以预测 DBMS 在每个可能配置下的性能。OtterTune 优化下一个配置，换探索为利用，从收集信息以改善模型变为不断尝试在目标指标上做得更好。&lt;/p&gt;
+
+&lt;h4 id=&quot;实现&quot;&gt;实现&lt;/h4&gt;
+
+&lt;p&gt;OtterTune 是用 Python 编写的。&lt;/p&gt;
+
+&lt;p&gt;对 Workload Characterization 和 Knob Identification 组件而言，运行时性能并不是主要考虑因素，因此我们使用 &lt;a href=&quot;http://scikit-learn.org/stable/&quot;&gt;scikit-learn&lt;/a&gt; 来实现对应的 ML 算法。这些算法在后台进程中运行，从而在 OtterTune 存储库中有新数据可用时纳入这些数据。&lt;/p&gt;
+
+&lt;p&gt;而对于 Automatic Tuner，ML 算法是关键。它们在每个观察期之后运行，从而纳入新数据，以便 OtterTune 能够选取下一次尝试的开关配置。由于要考虑性能，我们使用 &lt;a href=&quot;https://www.tensorflow.org/&quot;&gt;TensorFlow&lt;/a&gt; 来实现这些算法。&lt;/p&gt;
+
+&lt;p&gt;为了收集有关 DBMS 硬件、开关配置和运行时性能指标的数据，OtterTune 的控制器与&lt;a href=&quot;https://github.com/oltpbenchmark/oltpbench&quot;&gt; OLTP-Bench &lt;/a&gt;基准测试框架集成在了一起。&lt;/p&gt;
+
+&lt;h3 id=&quot;autotikv使用&quot;&gt;AutoTikv使用&lt;/h3&gt;
+
+&lt;p&gt;AutoTikv是一个用于对TiKV数据库进行自动调优的工具。它的设计灵感来自于SIGMOD 2017的一篇paper：&lt;a href=&quot;https://www.cs.cmu.edu/~ggordon/van-aken-etal-parameters.pdf&quot;&gt;Automatic Database Management System Tuning Through Large-scale Machine Learning&lt;/a&gt;，使用机器学习模型对数据库参数进行自动调优。&lt;/p&gt;
+
+&lt;p&gt;项目地址：https://github.com/pentium3/AutoTiKV&lt;/p&gt;
+
+&lt;h3 id=&quot;设计目标&quot;&gt;&lt;strong&gt;设计目标&lt;/strong&gt;&lt;/h3&gt;
+
+&lt;p&gt;整个过程会循环跑200个round（可以用户自定义），或者也可以定义成到结果收敛为止。&lt;/p&gt;
+
+&lt;p&gt;AutoTiKV支持在修改参数之后重启tikv（如果不需要也可以选择不重启）。需要调节的参数和需要查看的metric可以在controller.py里声明。&lt;/p&gt;
+
+&lt;p&gt;以下是一个knob的声明样板：&lt;/p&gt;
+
+&lt;div class=&quot;language-json highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nl&quot;&gt;&quot;rocksdb.defaultcf.write-buffer-size&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;          &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;#&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;of&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;the&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;knob&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;  &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;用点分隔不同session名和knob名&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;changebyyml&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;                    &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;#&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;True表示通过修改tikv-ansible/conf/tikv.yml来调节&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;set_func&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;None&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;                       &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;#&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;若changebyyml==False，则在此指定修改参数的函数名（函数也定义在controller.py里，一般就用tikv-ctl命令行来调节）&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;minval&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;64&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;                           &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;#&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;type!=enum&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;indicate&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;min&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;possible&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;maxval&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1024&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;                         &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;#&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;type!=enum&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;indicate&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;max&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;possible&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;enumval&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[],&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;                          &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;#&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;type==enum&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;list&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;all&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;valid&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;values&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;type&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;int&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;                          &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;#&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;int&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;enum&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;real&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;default&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;64&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;                           &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;#&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;default&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;以下是一个metric的声明样板：&lt;/p&gt;
+
+&lt;div class=&quot;language-json highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nl&quot;&gt;&quot;write_latency&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+     &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;read_func&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;read_write_latency&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;      &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;#&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;声明查看该指标的函数（函数也定义在controller.py里）&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+     &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;lessisbetter&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;                    &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;#&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;whether&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;less&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;of&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;metric&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;is&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;better(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;yes)&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+     &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;calc&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;ins&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;                        &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;#&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;ins表示该参数的值就是benchmark之后查看的结果。inc表示该参数是incremental的，需要把benchmark之后和之前的值相减作为结果。&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;一开始的10轮（具体大小可以调节）是用随机生成的knob去benchmark，之后的都是用ML模型推荐的参数去benchmark。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;ML模型&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;AutoTikv 使用了和 OtterTune 一样的高斯过程回归（Gaussian Process Regression，以下简称 GP）来推荐新的 knob，它是基于高斯分布的一种非参数模型。高斯过程回归的好处是：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;和神经网络之类的方法相比，GP 属于无参数模型，算法计算量相对较低，而且在训练样本很少的情况下表现比 NN 更好。&lt;/li&gt;
+  &lt;li&gt;它能估计样本的分布情况，即 X 的均值 m(X) 和标准差 s(X)。若 X 周围的数据不多，则它被估计出的标准差 s(X) 会偏大（表示这个样本 X 和其他数据点的差异大）。直观的理解是若数据不多，则不确定性会大，体现在标准差偏大。反之，数据足够时，不确定性减少，标准差会偏小。这个特性后面会用到。&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;但 GP 本身其实只能估计样本的分布，为了得到最终的预测值，我们需要把它应用到贝叶斯优化（Bayesian Optimization）中。贝叶斯优化算法大致可分为两步：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;通过 GP 估计出函数的分布情况&lt;/li&gt;
+  &lt;li&gt;通过采集函数（Acquisition Function）指导下一步的采样（也就是给出推荐值）&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;采集函数（Acquisition Function）的作用是：在寻找新的推荐值的时候，平衡探索（exploration）和利用（exploitation）两个性质：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;exploration：在目前数据量较少的未知区域探索新的点。&lt;/li&gt;
+  &lt;li&gt;exploitation：对于数据量足够多的已知区域，利用这些数据训练模型进行估计，找出最优值&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;在推荐的过程中，需要平衡上述两种指标。exploitation 过多会导致结果陷入局部最优值（重复推荐目前已知的最好的点，但可能还有更好的点没被发现），而 exploration 过多又会导致搜索效率太低（一直在探索新区域，而没有对当前比较好的区域进行深入尝试）。而平衡二者的核心思想是：当数据足够多时，利用现有的数据推荐；当缺少数据时，我们在点最少的区域进行探索，探索最未知的区域能给我们最大的信息量。&lt;/p&gt;
+
+&lt;p&gt;贝叶斯优化的第二步就可以帮我们实现这一思想。前面提到 GP 可以帮我们估计 X 的均值 m(X) 和标准差 s(X)，其中均值 m(x) 可以作为 exploitation 的表征值，而标准差 s(x) 可以作为 exploration 的表征值。这样就可以用贝叶斯优化方法来求解了。&lt;/p&gt;
+
+&lt;p&gt;使用置信区间上界（Upper Confidence Bound）作为采集函数。假设我们需要找 X 使 Y 值尽可能大，则 U(X) = m(X) + k*s(X)，其中 k &amp;gt; 0 是可调的系数。我们只要找 X 使 U(X) 尽可能大即可。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;若 U(X) 大，则可能 m(X) 大，也可能 s(X) 大。&lt;/li&gt;
+  &lt;li&gt;若 s(X) 大，则说明 X 周围数据不多，需要探索未知区域新的点。&lt;/li&gt;
+  &lt;li&gt;若 m(X) 大，说明估计的 Y 值均值大， 则需要利用已知数据找到效果好的点。&lt;/li&gt;
+  &lt;li&gt;其中系数 k 影响着探索和利用的比例，k 越大，越鼓励探索新的区域。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;在具体实现中，一开始随机生成若干个 candidate knobs，然后用上述模型计算出它们的 U(X)，找出 U(X) 最大的那一个作为本次推荐的结果。&lt;/p&gt;
+
+&lt;p&gt;Ref：https://mp.weixin.qq.com/s/y8VIieK0LO37SjRRyPhtrw&lt;/p&gt;
+
+&lt;h3 id=&quot;数据库参数&quot;&gt;&lt;strong&gt;数据库参数&lt;/strong&gt;&lt;/h3&gt;
+
+&lt;p&gt;&lt;strong&gt;workload&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;定义了writeheavy、longscan、shortscan、point-lookup四种workload。数据库大小都是80GB。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;knobs&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;试验了如下参数：&lt;/p&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;Options&lt;/th&gt;
+      &lt;th&gt;Expected Behavior&lt;/th&gt;
+      &lt;th&gt;valid range/value set&lt;/th&gt;
+      &lt;th&gt;how to set/view knob&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;write-buffer-size&lt;/td&gt;
+      &lt;td&gt;point-lookup, range-scan: larger is better&lt;/td&gt;
+      &lt;td&gt;[64MB, 1GB]&lt;/td&gt;
+      &lt;td&gt;tidb-ansible/conf/tikv.yml&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;max-bytes-for-level-base&lt;/td&gt;
+      &lt;td&gt;point-lookup, range-scan: larger is better&lt;/td&gt;
+      &lt;td&gt;[512MB, 4GB]&lt;/td&gt;
+      &lt;td&gt;tidb-ansible/conf/tikv.yml&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;target-file-size-base&lt;/td&gt;
+      &lt;td&gt;point-lookup, range-scan: larger is better&lt;/td&gt;
+      &lt;td&gt;{8M, 16M, 32M, 64M, 128M}&lt;/td&gt;
+      &lt;td&gt;tidb-ansible/conf/tikv.yml&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;disable-auto-compactions&lt;/td&gt;
+      &lt;td&gt;write-heavy: 1 is better point-lookup, range-scan: 0 is better&lt;/td&gt;
+      &lt;td&gt;{1, 0}&lt;/td&gt;
+      &lt;td&gt;tidb-ansible/conf/tikv.yml or tikv-ctl&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;block-size&lt;/td&gt;
+      &lt;td&gt;point-lookup: smaller the better range-scan: larger the better&lt;/td&gt;
+      &lt;td&gt;{4k,8k,16k,32k,64k}&lt;/td&gt;
+      &lt;td&gt;tidb-ansible/conf/tikv.yml&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;bloom-filter-bits-per-key&lt;/td&gt;
+      &lt;td&gt;point-lookup, range-scan: larger is better&lt;/td&gt;
+      &lt;td&gt;{5,10,15,20}&lt;/td&gt;
+      &lt;td&gt;tidb-ansible/conf/tikv.yml&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;optimize-filters-for-hits&lt;/td&gt;
+      &lt;td&gt;point-lookup, range-scan: 0 is better&lt;/td&gt;
+      &lt;td&gt;{1, 0}&lt;/td&gt;
+      &lt;td&gt;tidb-ansible/conf/tikv.yml&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;这些参数的含义如下：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;block-size&lt;/strong&gt;：RocksDB 会将数据存放在 data block 里面，block-size 设置这些 block 的大小，当需要访问某一个 key 的时候，RocksDB 需要读取这个 key 所在的整个 block。对于点查，更大的 block 会增加读放大，影响性能，但是对于范围查询，更大的 block 能够更有效的利用磁盘带宽。&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;disable-auto-compactions&lt;/strong&gt;：定义是否关闭 compaction。compaction 会占用磁盘带宽，影响写入速度。但如果 LSM 得不到 compact， level0 文件会累积，影响读性能。其实本身 &lt;a href=&quot;https://www.jianshu.com/p/0fdeed70b36a&quot;&gt;compaction 也是一个有趣的 auto-tuning 的方向&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;write-buffer-size&lt;/strong&gt;：单个 memtable 的大小限制（最大值）。理论上说更大的 memtable 会增加二分查找插入位置的消耗，但是之前的初步试验发现这个选项对 writeheavy 影响并不明显。&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;max-bytes-for-level-base&lt;/strong&gt;：LSM tree 里面 level1 的总大小。在数据量固定的情况下，这个值更大意味着其实 LSM 的层数更小，对读有利。&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;target-file-size-base&lt;/strong&gt;：假设 target-file-size-multiplier=1 的情况下，这个选项设置的是每个 SST 文件的大小。这个值偏小的话意味着 SST 文件更多，会影响读性能。&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;bloom-filter-bits-per-key&lt;/strong&gt;：设置 Bloom Filter 的位数。对于读操作这一项越大越好。&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;optimize-filters-for-hits&lt;/strong&gt;：True 表示关闭 LSM 最底层的 bloom filter。这个选项主要是因为最底层的 bloom filter 总大小比较大，比较占用 block cache 空间。如果已知查询的 key 一定在数据库中存，最底层 bloom filter 其实是没有作用的。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;几个试验过但最终放弃了的参数：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;block_cache_size&lt;/strong&gt;：RocksDB block cache 的大小，这个 cache 就是用来缓存上面提到的解压缩后的 data block 的。理论上来说 block cache 一般不能占满系统内存，要留一部分用来在 OS buffer cache 里面缓存压缩的 data block。但是在我们初步试验里面 block_cache_size 最优值都是打到最大。针对 block cache 的自动调优策略被研究的也比较多，比如&lt;a href=&quot;https://github.com/facebook/rocksdb/pull/5610&quot;&gt;用强化学习来选择置换算法&lt;/a&gt;和 &lt;a href=&quot;https://github.com/facebook/rocksdb/wiki/Block-Cache#simulated-cache&quot;&gt;SimulatedCache&lt;/a&gt;。&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;delayed_write_rate&lt;/strong&gt;：当 flush 或 compaction 的速度跟不上前台写入速度的时候，RocksDB 会强制将写入速度限制到 delayed_write_rate，来避免读性能退化。本来希望通过调整这个参数来试验能否自动调优这个值，但是发生 write stall 以后会导致 TiKV 返回超时错误，影响 tuning 的流程，所以只好放弃了这个参数。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;metrics&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;选择了如下几个metrics作为优化指标。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;throughput：根据具体workload不同又分为write throughput、get throughput、scan throughput&lt;/li&gt;
+  &lt;li&gt;latency：根据具体workload不同又分为write latency、get latency、scan latency&lt;/li&gt;
+  &lt;li&gt;store_size：&lt;/li&gt;
+  &lt;li&gt;compaction_cpu：&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;其中throughput和latency通过go-ycsb的输出结果获得，store_size和compaction_cpu通过tikv-ctl获得。&lt;/p&gt;
+
+&lt;p&gt;Ref：&lt;/p&gt;
+
+&lt;p&gt;https://rdrr.io/github/richfitz/rleveldb/man/leveldb_open.html&lt;/p&gt;
+
+&lt;p&gt;http://mysql.taobao.org/monthly/2016/08/03/&lt;/p&gt;
+
+&lt;p&gt;https://www.jianshu.com/p/8e0018b6a8b6&lt;/p&gt;
+
+&lt;p&gt;https://github.com/facebook/rocksdb/wiki/RocksDB-Tuning-Guide&lt;/p&gt;
+
+&lt;h3 id=&quot;实验测试结果&quot;&gt;实验测试结果&lt;/h3&gt;
+
+&lt;p&gt;&lt;strong&gt;测试平台&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;AMD Ryzen5-2600(6C12T), 32GB RAM, 512GB NVME SSD, Ubuntu 18.04&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;workload=writeheavy  knobs={disable-auto-compactions, block-size}  metric=write_latency&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-yaml highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;# Copyright (c) 2010 Yahoo! Inc. All rights reserved.                                                                                                                             &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#                                                                                                                                                                                 &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# Licensed under the Apache License, Version 2.0 (the &quot;License&quot;); you                                                                                                             &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# may not use this file except in compliance with the License. You                                                                                                                &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# may obtain a copy of the License at                                                                                                                                             &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#                                                                                                                                                                                 &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# http://www.apache.org/licenses/LICENSE-2.0                                                                                                                                      &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#                                                                                                                                                                                 &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# Unless required by applicable law or agreed to in writing, software                                                                                                             &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# distributed under the License is distributed on an &quot;AS IS&quot; BASIS,                                                                                                               &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or                                                                                                                 &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# implied. See the License for the specific language governing                                                                                                                    &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# permissions and limitations under the License. See accompanying                                                                                                                 &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# LICENSE file.                                                                                                                                                                   &lt;/span&gt;
+
+
+&lt;span class=&quot;c1&quot;&gt;# Yahoo! Cloud System Benchmark&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# Workload A: Update heavy workload&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#   Application example: Session store recording recent actions&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#                        &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#   Read/update ratio: 50/50&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#   Default data size: 1 KB records (10 fields, 100 bytes each, plus key)&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#   Request distribution: zipfian&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;# 80GB&lt;/span&gt;
+
+&lt;span class=&quot;s&quot;&gt;recordcount=80000000&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;operationcount=5000000&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# fieldlength=10&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;workload=core&lt;/span&gt;
+
+&lt;span class=&quot;s&quot;&gt;readallfields=true&lt;/span&gt;
+
+&lt;span class=&quot;s&quot;&gt;readproportion=0&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;updateproportion=1&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;scanproportion=0&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;insertproportion=0&lt;/span&gt;
+
+&lt;span class=&quot;s&quot;&gt;requestdistribution=zipfian&lt;/span&gt;
+
+&lt;span class=&quot;s&quot;&gt;ycsb workload定义&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;实验效果如下：&lt;/p&gt;
+
+&lt;div class=&quot;language-yaml highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;################## data ##################&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;------------------------------previous:------------------------------&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;knobs&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;   &lt;span class=&quot;pi&quot;&gt;[[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;0. 4.&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+ &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;1. 3.&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+ &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;0. 0.&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+ &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;0. 3.&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+ &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;0. 1.&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+ &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;1. 4.&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+ &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;0. 1.&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+ &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;1. 0.&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+ &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;1. 4.&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+ &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;0. 4.&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+ &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;0. 0.&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+ &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;0. 0.&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+ &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;0. 0.&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+ &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;0. 0.&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+ &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;0. 0.&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+ &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;0. 0.&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]]&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;metrics&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;   &lt;span class=&quot;pi&quot;&gt;[[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;1.01428000e+04 5.04230000e+04 8.86174709e+10 1.84750000e+02&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+ &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;1.01703000e+04 5.02510000e+04 8.98934985e+10 2.50000000e+00&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+ &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;1.24102000e+04 4.10920000e+04 8.95223916e+10 2.18850000e+02&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+ &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;1.09910000e+04 4.64880000e+04 8.86518967e+10 1.89610000e+02&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+ &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;1.20731000e+04 4.21960000e+04 8.90833010e+10 1.88950000e+02&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+ &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;9.42460000e+03 5.42690000e+04 8.98143324e+10 3.32000000e+00&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+ &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;1.19275000e+04 4.28240000e+04 8.90753594e+10 1.94820000e+02&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+ &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;1.18271000e+04 4.32470000e+04 9.11159380e+10 3.08000000e+00&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+ &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;9.34830000e+03 5.47160000e+04 8.98211663e+10 3.27000000e+00&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+ &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;1.02665000e+04 4.97860000e+04 8.86331145e+10 1.87730000e+02&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+ &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;1.25193000e+04 4.08050000e+04 8.94974748e+10 2.19960000e+02&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+ &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;1.24805000e+04 4.07670000e+04 8.95419805e+10 2.20190000e+02&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+ &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;1.24086000e+04 4.11510000e+04 8.94650026e+10 2.24280000e+02&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+ &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;1.21789000e+04 4.18830000e+04 8.95860725e+10 2.18360000e+02&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+ &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;1.21835000e+04 4.19280000e+04 8.95094852e+10 2.25200000e+02&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+ &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;1.21365000e+04 4.20690000e+04 8.94701087e+10 2.18990000e+02&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]]&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;rowlabels&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;   &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;5&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;6&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;7&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;8&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;9&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;11&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;12&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;13&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;14&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;15&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;16&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;num&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;   &lt;span class=&quot;m&quot;&gt;16&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;------------------------------new:------------------------------&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;knobs&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;   &lt;span class=&quot;pi&quot;&gt;[[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;0. 0.&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]]&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;metrics&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;   &lt;span class=&quot;pi&quot;&gt;[[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;1.23137000e+04 4.14700000e+04 8.95614611e+10 2.17990000e+02&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]]&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;rowlabels&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;   &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;------------------------------TARGET:------------------------------&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;knob&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;   &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;disable-auto-compactions'&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;block-size'&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;metric&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;   &lt;span class=&quot;s&quot;&gt;write_latency&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;metric_lessisbetter&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;   &lt;span class=&quot;m&quot;&gt;1&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;------------------------------------------------------------&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;num of knobs ==  &lt;/span&gt;&lt;span class=&quot;m&quot;&gt;2&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;knobs&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;   &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;disable-auto-compactions'&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;block-size'&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;num of metrics ==  &lt;/span&gt;&lt;span class=&quot;m&quot;&gt;4&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;metrics&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;   &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;write_throughput'&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;write_latency'&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;store_size'&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;compaction_cpu'&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;------------------------------------------------------------&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;################## data ##################&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;这个实验中推荐结果是启用compaction、同时block size设为4KB。&lt;/p&gt;
+
+&lt;p&gt;一开始还挺惊讶的（毕竟按理说写入时关闭 compaction 肯定是提升性能的）。后来分析因为TiKV 里面使用了 Percolator 进行分布式事务，写流程也涉及读操作（写冲突检测），所以关闭 compaction 也导致写入性能下降。同理更小的 block size 提高点查性能，对 TiKV 的写流程性能也有提升。&lt;/p&gt;
+
+&lt;p&gt;为了排除这一干扰因素，接下来用point lookup这一纯读取的workload进行了试验：&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;workload=pntlookup80  knobs={‘bloom-filter-bits-per-key’, ‘optimize-filters-for-hits’, ‘block-size’, ‘disable-auto-compactions’}  metric=get_latency&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-yaml highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;# Copyright (c) 2010 Yahoo! Inc. All rights reserved.&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#                                                                                                                                                                                 &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# Licensed under the Apache License, Version 2.0 (the &quot;License&quot;); you                                                                                                             &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# may not use this file except in compliance with the License. You                                                                                                                &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# may obtain a copy of the License at                                                                                                                                             &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#                                                                                                                                                                                 &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# http://www.apache.org/licenses/LICENSE-2.0                                                                                                                                      &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#                                                                                                                                                                                 &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# Unless required by applicable law or agreed to in writing, software                                                                                                             &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# distributed under the License is distributed on an &quot;AS IS&quot; BASIS,                                                                                                               &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or                                                                                                                 &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# implied. See the License for the specific language governing                                                                                                                    &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# permissions and limitations under the License. See accompanying                                                                                                                 &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# LICENSE file.                                                                                                                                                                   &lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;# Yahoo! Cloud System Benchmark&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# Workload C: Read only&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#   Application example: user profile cache, where profiles are constructed elsewhere (e.g., Hadoop)&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#                        &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#   Read/update ratio: 100/0&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#   Default data size: 1 KB records (10 fields, 100 bytes each, plus key)&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#   Request distribution: zipfian&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;# 80GB&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# 2min each run&lt;/span&gt;
+
+&lt;span class=&quot;s&quot;&gt;recordcount=80000000&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;operationcount=4000000&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;workload=core&lt;/span&gt;
+
+&lt;span class=&quot;s&quot;&gt;readallfields=true&lt;/span&gt;
+
+&lt;span class=&quot;s&quot;&gt;readproportion=1&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;updateproportion=0&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;scanproportion=0&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;insertproportion=0&lt;/span&gt;
+
+&lt;span class=&quot;s&quot;&gt;requestdistribution=zipfian&lt;/span&gt;
+
+&lt;span class=&quot;s&quot;&gt;ycsb workload定义&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;实验效果如下：&lt;/p&gt;
+
+&lt;div class=&quot;language-yaml highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;s&quot;&gt;------------------------------previous:------------------------------&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;rowlabels, finish_time, knobs, metrics&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;1 , 2021-07-11 20:12:21 , [2. 0. 2. 0.] , [3.66446000e+04 1.39670000e+04 8.62385543e+10 2.36200000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;2 , 2021-07-11 21:01:30 , [2. 0. 2. 1.] , [2.00085000e+04 2.55740000e+04 8.65226052e+10 0.00000000e+00]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;3 , 2021-07-11 22:06:48 , [3. 1. 0. 0.] , [4.18042000e+04 1.22580000e+04 8.68646096e+10 4.99000000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;4 , 2021-07-11 23:12:15 , [0. 1. 1. 0.] , [3.97759000e+04 1.28700000e+04 8.64727843e+10 4.36500000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;5 , 2021-07-12 00:18:39 , [3. 1. 1. 0.] , [4.0698500e+04 1.2577000e+04 8.6412687e+10 4.2540000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;6 , 2021-07-12 01:08:15 , [3. 0. 4. 1.] , [1.75872000e+04 2.90890000e+04 8.63167881e+10 1.80000000e-01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;7 , 2021-07-12 02:13:59 , [2. 1. 0. 0.] , [4.14569000e+04 1.23490000e+04 8.68367156e+10 4.94200000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;8 , 2021-07-12 03:20:14 , [0. 1. 3. 0.] , [3.2892000e+04 1.5563000e+04 8.6045883e+10 4.1360000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;9 , 2021-07-12 04:26:29 , [2. 1. 2. 0.] , [3.56923000e+04 1.43400000e+04 8.61031652e+10 3.95600000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;10 , 2021-07-12 05:32:04 , [1. 0. 0. 0.] , [4.09599000e+04 1.25000000e+04 8.69347684e+10 4.80500000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;11 , 2021-07-12 06:38:25 , [3. 0. 0. 0.] , [4.11105000e+04 1.24550000e+04 8.70293207e+10 4.88900000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;12 , 2021-07-12 07:44:29 , [1. 1. 0. 0.] , [4.18002000e+04 1.22470000e+04 8.68315762e+10 4.95400000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;13 , 2021-07-12 08:50:32 , [2. 0. 0. 0.] , [4.21299000e+04 1.21530000e+04 8.69322719e+10 3.92500000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;14 , 2021-07-12 09:56:32 , [0. 0. 0. 0.] , [3.96365000e+04 1.29120000e+04 8.68696194e+10 5.50400000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;15 , 2021-07-12 11:02:19 , [2. 1. 0. 0.] , [4.13551000e+04 1.23780000e+04 8.68479242e+10 5.01600000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;16 , 2021-07-12 12:08:19 , [0. 1. 0. 0.] , [3.98915000e+04 1.28310000e+04 8.68413685e+10 4.53700000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;17 , 2021-07-12 13:14:13 , [2. 1. 0. 0.] , [4.1778800e+04 1.2253000e+04 8.6845963e+10 4.8780000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;18 , 2021-07-12 14:05:52 , [0. 1. 0. 1.] , [1.37462000e+04 3.72160000e+04 8.74961963e+10 0.00000000e+00]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;19 , 2021-07-12 15:11:48 , [2. 1. 1. 0.] , [4.03858000e+04 1.26740000e+04 8.64025255e+10 3.95100000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;20 , 2021-07-12 16:18:06 , [0. 0. 2. 0.] , [3.49978000e+04 1.46240000e+04 8.61336679e+10 2.37300000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;21 , 2021-07-12 17:24:02 , [2. 0. 1. 0.] , [4.13509000e+04 1.23770000e+04 8.65494483e+10 2.70600000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;22 , 2021-07-12 18:29:36 , [3. 1. 0. 0.] , [4.18111000e+04 1.22440000e+04 8.68484968e+10 4.96900000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;23 , 2021-07-12 19:36:16 , [1. 0. 1. 0.] , [4.03078000e+04 1.27000000e+04 8.64872698e+10 3.91300000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;24 , 2021-07-12 20:41:55 , [3. 1. 0. 0.] , [4.26687000e+04 1.19980000e+04 8.68488277e+10 3.38800000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;25 , 2021-07-12 21:47:55 , [2. 0. 0. 0.] , [4.19810000e+04 1.21900000e+04 8.69691844e+10 4.00500000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;26 , 2021-07-12 22:54:13 , [3. 1. 0. 0.] , [4.18609000e+04 1.22290000e+04 8.68388398e+10 5.11200000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;27 , 2021-07-13 00:01:29 , [3. 1. 4. 0.] , [2.9123000e+04 1.7575000e+04 8.6027491e+10 4.3860000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;28 , 2021-07-13 01:07:53 , [2. 0. 0. 0.] , [4.12169000e+04 1.24210000e+04 8.69920328e+10 4.67300000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;29 , 2021-07-13 02:13:38 , [3. 1. 0. 0.] , [4.18402000e+04 1.22350000e+04 8.68513516e+10 4.57200000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;30 , 2021-07-13 03:19:31 , [2. 0. 0. 0.] , [4.20812000e+04 1.21640000e+04 8.69824656e+10 4.01500000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;31 , 2021-07-13 04:25:12 , [3. 1. 0. 0.] , [4.16913000e+04 1.22760000e+04 8.68498155e+10 4.98100000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;32 , 2021-07-13 05:31:00 , [3. 0. 0. 0.] , [4.15515000e+04 1.23180000e+04 8.70275493e+10 4.94400000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;33 , 2021-07-13 06:37:15 , [3. 1. 0. 0.] , [4.16460000e+04 1.22920000e+04 8.68442154e+10 4.66100000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;34 , 2021-07-13 07:43:24 , [3. 0. 0. 0.] , [4.22696000e+04 1.21100000e+04 8.70264613e+10 3.65300000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;35 , 2021-07-13 08:49:24 , [3. 1. 0. 0.] , [4.18575000e+04 1.22280000e+04 8.68419002e+10 4.99000000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;36 , 2021-07-13 09:55:36 , [3. 0. 0. 0.] , [4.07931000e+04 1.25500000e+04 8.70300743e+10 4.98500000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;37 , 2021-07-13 11:00:54 , [3. 1. 0. 0.] , [4.19244000e+04 1.22080000e+04 8.68508093e+10 4.98500000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;38 , 2021-07-13 12:06:37 , [3. 0. 0. 0.] , [4.1197800e+04 1.2425000e+04 8.7020173e+10 4.6780000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;39 , 2021-07-13 13:12:35 , [3. 1. 0. 0.] , [4.19859000e+04 1.21920000e+04 8.68462752e+10 4.20200000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;40 , 2021-07-13 14:18:12 , [3. 0. 0. 0.] , [4.09505000e+04 1.25020000e+04 8.70206609e+10 5.18800000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;41 , 2021-07-13 15:23:32 , [3. 1. 0. 0.] , [4.19558000e+04 1.22030000e+04 8.68409963e+10 4.25600000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;42 , 2021-07-13 16:29:22 , [3. 0. 0. 0.] , [4.15804000e+04 1.23100000e+04 8.70172108e+10 4.56500000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;43 , 2021-07-13 17:35:13 , [3. 1. 0. 0.] , [4.16524000e+04 1.22890000e+04 8.68602952e+10 4.62100000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;44 , 2021-07-13 18:41:04 , [3. 0. 0. 0.] , [4.09697000e+04 1.24950000e+04 8.70105798e+10 4.56000000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;45 , 2021-07-13 19:46:55 , [3. 1. 0. 0.] , [4.16999000e+04 1.22770000e+04 8.68411373e+10 4.83400000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;46 , 2021-07-13 20:52:48 , [3. 0. 0. 0.] , [4.11311000e+04 1.24450000e+04 8.70303738e+10 4.90000000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;47 , 2021-07-13 21:58:48 , [3. 1. 0. 0.] , [4.23772000e+04 1.20780000e+04 8.68478265e+10 3.74500000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;48 , 2021-07-13 23:04:49 , [3. 0. 0. 0.] , [4.12347000e+04 1.24120000e+04 8.70284529e+10 3.89000000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;49 , 2021-07-14 00:10:42 , [3. 1. 0. 0.] , [4.29264000e+04 1.19250000e+04 8.68530475e+10 3.23300000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;50 , 2021-07-14 01:16:15 , [3. 0. 0. 0.] , [4.15186000e+04 1.23290000e+04 8.70386584e+10 3.65400000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;51 , 2021-07-14 02:21:36 , [3. 1. 0. 0.] , [4.26975000e+04 1.19900000e+04 8.68521299e+10 4.03900000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;52 , 2021-07-14 03:27:19 , [3. 0. 0. 0.] , [4.08752000e+04 1.25230000e+04 8.70437235e+10 4.79600000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;------------------------------new:------------------------------&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;knobs&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;   &lt;span class=&quot;pi&quot;&gt;[[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;3. 1. 0. 0.&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]]&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;metrics&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;   &lt;span class=&quot;pi&quot;&gt;[[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;4.21738000e+04 1.21390000e+04 8.68461987e+10 4.58900000e+01&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]]&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;rowlabels&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;   &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;timestamp&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;   &lt;span class=&quot;s&quot;&gt;2021-07-18 04:33:07&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;------------------------------TARGET:------------------------------&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;knob&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;   &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;bloom-filter-bits-per-key'&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;optimize-filters-for-hits'&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;block-size'&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;disable-auto-compactions'&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;metric&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;   &lt;span class=&quot;s&quot;&gt;get_latency&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;metric_lessisbetter&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;   &lt;span class=&quot;m&quot;&gt;1&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;------------------------------------------------------------&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;num of knobs ==  &lt;/span&gt;&lt;span class=&quot;m&quot;&gt;4&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;knobs&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;   &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;bloom-filter-bits-per-key'&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;optimize-filters-for-hits'&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;block-size'&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;disable-auto-compactions'&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;num of metrics ==  &lt;/span&gt;&lt;span class=&quot;m&quot;&gt;4&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;metrics&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;   &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;get_throughput'&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;get_latency'&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;store_size'&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;compaction_cpu'&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;------------------------------------------------------------&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;推荐结果为：bloom-filter-bits-per-key=20，block-size=4K，不disable auto compaction。而optimize-filters-for-hits是否启用影响不大（所以会出现这一项的推荐结果一直在摇摆的情况）。&lt;/p&gt;
+
+&lt;p&gt;推荐的结果都挺符合预期的。关于 optimize-filter 这一项，应该是试验里面 block cache 足够大，所以 bloom filter 大小对 cache 性能影响不大；而且我们是设置 default CF 相应的选项，而对于 TiKV 来说查询 default CF 之前我们已经确定相应的 key 肯定存在，所以是否有 filter 并没有影响。之后的试验中我们会设置 writeCF 中的 optimize-filters-for-hits（defaultCF的这一项默认就是0了）；然后分别设置 defaultCF 和 writeCF 中的 bloom-filter-bits-per-key，把它们作为两个 knob。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;workload=pntlookup80  knobs={rocksdb.writecf.bloom-filter-bits-per-key, rocksdb.defaultcf.bloom-filter-bits-per-key, rocksdb.writecf.optimize-filters-for-hits, rocksdb.defaultcf.block-size, rocksdb.defaultcf.disable-auto-compactions}  metric=get_throughput&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;为了能尽量测出来 bloom filter 的效果，除了上述改动之外，我们把 workload 也改了一下：把 run phase 的 recordcount 设成 load phase 的两倍大，这样强制有一半的查找对应的 key 不存在，这样应该会测出来 write CF 的 optimize-filters-for-hits 必须关闭。改完之后的 workload 如下：&lt;/p&gt;
+
+&lt;p&gt;第一个代码块是Load, db大小是80GB，第二个是Run, db大小是160GB：&lt;/p&gt;
+
+&lt;div class=&quot;language-yaml highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;# Copyright (c) 2010 Yahoo! Inc. All rights reserved.&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#                                                                                                                                                                                 &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# Licensed under the Apache License, Version 2.0 (the &quot;License&quot;); you                                                                                                             &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# may not use this file except in compliance with the License. You                                                                                                                &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# may obtain a copy of the License at                                                                                                                                             &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#                                                                                                                                                                                 &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# http://www.apache.org/licenses/LICENSE-2.0                                                                                                                                      &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#                                                                                                                                                                                 &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# Unless required by applicable law or agreed to in writing, software                                                                                                             &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# distributed under the License is distributed on an &quot;AS IS&quot; BASIS,                                                                                                               &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or                                                                                                                 &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# implied. See the License for the specific language governing                                                                                                                    &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# permissions and limitations under the License. See accompanying                                                                                                                 &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# LICENSE file.                                                                                                                                                                   &lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;# Yahoo! Cloud System Benchmark&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# Workload C: Read only&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#   Application example: user profile cache, where profiles are constructed elsewhere (e.g., Hadoop)&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#                        &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#   Read/update ratio: 100/0&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#   Default data size: 1 KB records (10 fields, 100 bytes each, plus key)&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#   Request distribution: zipfian&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;# 80GB&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# 2min each run&lt;/span&gt;
+
+&lt;span class=&quot;s&quot;&gt;recordcount=80000000&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;operationcount=5000000&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;workload=core&lt;/span&gt;
+
+&lt;span class=&quot;s&quot;&gt;readallfields=true&lt;/span&gt;
+
+&lt;span class=&quot;s&quot;&gt;readproportion=1&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;updateproportion=0&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;scanproportion=0&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;insertproportion=0&lt;/span&gt;
+
+&lt;span class=&quot;s&quot;&gt;requestdistribution=zipfian&lt;/span&gt;
+
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;div class=&quot;language-yaml highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;# Copyright (c) 2010 Yahoo! Inc. All rights reserved.&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#                                                                                                                                                                                 &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# Licensed under the Apache License, Version 2.0 (the &quot;License&quot;); you                                                                                                             &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# may not use this file except in compliance with the License. You                                                                                                                &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# may obtain a copy of the License at                                                                                                                                             &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#                                                                                                                                                                                 &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# http://www.apache.org/licenses/LICENSE-2.0                                                                                                                                      &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#                                                                                                                                                                                 &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# Unless required by applicable law or agreed to in writing, software                                                                                                             &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# distributed under the License is distributed on an &quot;AS IS&quot; BASIS,                                                                                                               &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or                                                                                                                 &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# implied. See the License for the specific language governing                                                                                                                    &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# permissions and limitations under the License. See accompanying                                                                                                                 &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# LICENSE file.                                                                                                                                                                   &lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;# Yahoo! Cloud System Benchmark&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# Workload C: Read only&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#   Application example: user profile cache, where profiles are constructed elsewhere (e.g., Hadoop)&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#                        &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#   Read/update ratio: 100/0&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#   Default data size: 1 KB records (10 fields, 100 bytes each, plus key)&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#   Request distribution: zipfian&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;# 80GB&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# 2min each run&lt;/span&gt;
+
+&lt;span class=&quot;s&quot;&gt;recordcount=160000000&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;operationcount=5000000&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;workload=core&lt;/span&gt;
+
+&lt;span class=&quot;s&quot;&gt;readallfields=true&lt;/span&gt;
+
+&lt;span class=&quot;s&quot;&gt;readproportion=1&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;updateproportion=0&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;scanproportion=0&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;insertproportion=0&lt;/span&gt;
+
+&lt;span class=&quot;s&quot;&gt;requestdistribution=zipfian&lt;/span&gt;
+
+
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;这次的实验效果如下：&lt;/p&gt;
+
+&lt;div class=&quot;language-yaml highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;################## data ##################&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;------------------------------previous:------------------------------&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;rowlabels, finish_time, knobs, metrics&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;1 , 2021-07-15 20:11:14 , [3. 0. 0. 1. 0.] , [4.17141000e+04 1.22700000e+04 8.63951981e+10 3.22600000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;2 , 2021-07-15 21:01:50 , [1. 2. 1. 0. 1.] , [1.84393000e+04 2.77530000e+04 8.76023557e+10 0.00000000e+00]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;3 , 2021-07-15 21:52:36 , [3. 2. 1. 2. 1.] , [1.7525800e+04 2.9193000e+04 8.6489484e+10 0.0000000e+00]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;4 , 2021-07-15 22:57:46 , [3. 2. 1. 4. 0.] , [3.1377400e+04 1.6311000e+04 8.6011209e+10 3.3480000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;5 , 2021-07-16 00:03:06 , [2. 2. 1. 3. 0.] , [3.57383000e+04 1.43210000e+04 8.60386882e+10 3.97000000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;6 , 2021-07-16 00:53:29 , [2. 3. 1. 3. 1.] , [1.78001000e+04 2.87420000e+04 8.64059038e+10 0.00000000e+00]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;7 , 2021-07-16 01:58:09 , [2. 3. 1. 1. 0.] , [4.29348000e+04 1.19210000e+04 8.64341341e+10 3.46900000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;8 , 2021-07-16 03:03:35 , [1. 1. 1. 2. 0.] , [3.66121000e+04 1.39810000e+04 8.61325773e+10 4.39700000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;9 , 2021-07-16 04:09:05 , [2. 2. 0. 3. 0.] , [3.59254000e+04 1.42450000e+04 8.60441991e+10 4.09100000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;10 , 2021-07-16 05:14:04 , [2. 2. 1. 0. 0.] , [4.3455900e+04 1.1779000e+04 8.6827261e+10 4.7180000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;11 , 2021-07-16 06:19:28 , [2. 1. 0. 1. 0.] , [4.32743000e+04 1.18270000e+04 8.64087651e+10 2.76900000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;12 , 2021-07-16 07:25:29 , [2. 2. 1. 0. 0.] , [4.37505000e+04 1.16980000e+04 8.68377817e+10 3.66300000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;13 , 2021-07-16 08:30:47 , [2. 0. 0. 1. 0.] , [4.09163000e+04 1.25110000e+04 8.63941229e+10 4.32500000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;14 , 2021-07-16 09:36:14 , [2. 2. 0. 0. 0.] , [4.36414000e+04 1.17270000e+04 8.68246281e+10 4.70600000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;15 , 2021-07-16 10:41:49 , [2. 1. 1. 0. 0.] , [4.29599000e+04 1.19140000e+04 8.68228424e+10 4.91600000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;16 , 2021-07-16 11:47:07 , [2. 1. 0. 0. 0.] , [4.28121000e+04 1.19560000e+04 8.68404965e+10 4.76900000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;17 , 2021-07-16 12:53:03 , [2. 2. 1. 0. 0.] , [4.33225000e+04 1.18150000e+04 8.68531672e+10 4.67000000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;18 , 2021-07-16 13:58:13 , [3. 1. 0. 0. 0.] , [4.42762000e+04 1.15600000e+04 8.68428438e+10 3.25600000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;19 , 2021-07-16 15:03:52 , [2. 2. 1. 0. 0.] , [4.43796000e+04 1.15330000e+04 8.68332426e+10 3.37300000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;20 , 2021-07-16 16:09:26 , [3. 1. 0. 0. 0.] , [4.24397000e+04 1.20590000e+04 8.68403016e+10 5.07300000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;21 , 2021-07-16 17:14:34 , [2. 2. 1. 0. 0.] , [4.35737000e+04 1.17460000e+04 8.68471932e+10 4.73400000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;22 , 2021-07-16 18:19:47 , [3. 1. 0. 0. 0.] , [4.28986000e+04 1.19310000e+04 8.68300705e+10 4.80600000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;23 , 2021-07-16 19:25:22 , [2. 2. 1. 0. 0.] , [4.34617000e+04 1.17780000e+04 8.68395239e+10 4.80400000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;24 , 2021-07-16 20:31:11 , [2. 1. 0. 0. 0.] , [4.32535000e+04 1.18330000e+04 8.68426298e+10 4.46100000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;25 , 2021-07-16 21:36:29 , [3. 2. 1. 0. 0.] , [4.30494000e+04 1.18900000e+04 8.68364294e+10 4.78600000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;26 , 2021-07-16 22:42:20 , [2. 1. 0. 0. 0.] , [4.27872000e+04 1.19630000e+04 8.68309331e+10 4.76100000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;27 , 2021-07-16 23:47:42 , [3. 2. 0. 0. 0.] , [4.32865000e+04 1.18250000e+04 8.68361102e+10 4.83400000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;28 , 2021-07-17 00:53:08 , [2. 1. 1. 0. 0.] , [4.29929000e+04 1.19080000e+04 8.68338814e+10 5.06200000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;29 , 2021-07-18 01:58:37 , [2. 2. 0. 0. 0.] , [4.36637000e+04 1.17220000e+04 8.67981041e+10 4.49300000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;30 , 2021-07-18 03:03:42 , [3. 1. 1. 0. 0.] , [4.30542000e+04 1.18890000e+04 8.68628124e+10 5.10200000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;31 , 2021-07-18 04:09:01 , [2. 2. 0. 0. 0.] , [4.31552000e+04 1.18600000e+04 8.68568929e+10 5.26200000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;32 , 2021-07-18 05:13:59 , [3. 1. 1. 0. 0.] , [4.29512000e+04 1.19180000e+04 8.68360587e+10 5.17800000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;33 , 2021-07-18 06:19:15 , [2. 2. 0. 0. 0.] , [4.34998000e+04 1.17670000e+04 8.68505644e+10 4.75000000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;34 , 2021-07-18 07:24:36 , [3. 1. 1. 0. 0.] , [4.29066000e+04 1.19310000e+04 8.68417278e+10 4.94600000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;35 , 2021-07-18 08:30:13 , [2. 2. 0. 0. 0.] , [4.37385000e+04 1.17030000e+04 8.68307716e+10 4.26100000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;36 , 2021-07-18 09:34:58 , [3. 1. 1. 0. 0.] , [4.29117000e+04 1.19300000e+04 8.68479672e+10 4.71600000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;37 , 2021-07-18 10:40:21 , [2. 2. 0. 0. 0.] , [4.30777000e+04 1.18810000e+04 8.68356132e+10 4.95800000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;38 , 2021-07-18 11:45:43 , [3. 1. 1. 0. 0.] , [4.36291000e+04 1.17310000e+04 8.68428416e+10 4.08700000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;39 , 2021-07-18 12:51:25 , [2. 2. 0. 0. 0.] , [4.36237000e+04 1.17360000e+04 8.68353864e+10 4.00500000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;40 , 2021-07-18 13:57:10 , [3. 1. 1. 0. 0.] , [4.39189000e+04 1.16570000e+04 8.68385229e+10 3.60400000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;------------------------------new:------------------------------&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;knobs&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;   &lt;span class=&quot;pi&quot;&gt;[[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;2. 2. 0. 0. 0.&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]]&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;metrics&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;   &lt;span class=&quot;pi&quot;&gt;[[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;4.36609000e+04 1.17230000e+04 8.68364011e+10 4.77100000e+01&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]]&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;rowlabels&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;   &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;timestamp&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;   &lt;span class=&quot;s&quot;&gt;2021-07-18 15:02:11&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;------------------------------TARGET:------------------------------&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;knob&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;   &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;rocksdb.writecf.bloom-filter-bits-per-key'&lt;/span&gt;
+ &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;rocksdb.defaultcf.bloom-filter-bits-per-key'&lt;/span&gt;
+ &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;rocksdb.writecf.optimize-filters-for-hits'&lt;/span&gt;
+ &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;rocksdb.defaultcf.block-size'&lt;/span&gt;
+ &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;rocksdb.defaultcf.disable-auto-compactions'&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;metric&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;   &lt;span class=&quot;s&quot;&gt;get_throughput&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;metric_lessisbetter&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;   &lt;span class=&quot;m&quot;&gt;0&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;------------------------------------------------------------&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;num of knobs ==  &lt;/span&gt;&lt;span class=&quot;m&quot;&gt;5&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;knobs&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;   &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;rocksdb.writecf.bloom-filter-bits-per-key'&lt;/span&gt;
+ &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;rocksdb.defaultcf.bloom-filter-bits-per-key'&lt;/span&gt;
+ &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;rocksdb.writecf.optimize-filters-for-hits'&lt;/span&gt;
+ &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;rocksdb.defaultcf.block-size'&lt;/span&gt;
+ &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;rocksdb.defaultcf.disable-auto-compactions'&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;num of metrics ==  &lt;/span&gt;&lt;span class=&quot;m&quot;&gt;4&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;metrics&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;   &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;get_throughput'&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;get_latency'&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;store_size'&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;compaction_cpu'&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;------------------------------------------------------------&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;################## data ##################&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;测出来发现推荐配置基本集中在以下两种：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;{3,1,1,0,0}&lt;/strong&gt;
+    &lt;ul&gt;
+      &lt;li&gt;&lt;strong&gt;rocksdb.writecf.bloom-filter-bits-per-key [‘rocksdb’, ‘writecf’] bloom-filter-bits-per-key 20&lt;/strong&gt;
+&lt;strong&gt;rocksdb.defaultcf.bloom-filter-bits-per-key [‘rocksdb’, ‘defaultcf’] bloom-filter-bits-per-key 10&lt;/strong&gt;
+&lt;strong&gt;rocksdb.writecf.optimize-filters-for-hits [‘rocksdb’, ‘writecf’] optimize-filters-for-hits True&lt;/strong&gt;
+&lt;strong&gt;rocksdb.defaultcf.block-size [‘rocksdb’, ‘defaultcf’] block-size 4KB&lt;/strong&gt;
+&lt;strong&gt;rocksdb.defaultcf.disable-auto-compactions [‘rocksdb’, ‘defaultcf’] disable-auto-compactions False&lt;/strong&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;{2,2,0,0,0}&lt;/strong&gt;
+    &lt;ul&gt;
+      &lt;li&gt;&lt;strong&gt;rocksdb.writecf.bloom-filter-bits-per-key [‘rocksdb’, ‘writecf’] bloom-filter-bits-per-key 15&lt;/strong&gt;
+&lt;strong&gt;rocksdb.defaultcf.bloom-filter-bits-per-key [‘rocksdb’, ‘defaultcf’] bloom-filter-bits-per-key 15&lt;/strong&gt;
+&lt;strong&gt;rocksdb.writecf.optimize-filters-for-hits [‘rocksdb’, ‘writecf’] optimize-filters-for-hits False&lt;/strong&gt;
+&lt;strong&gt;rocksdb.defaultcf.block-size [‘rocksdb’, ‘defaultcf’] block-size 4KB&lt;/strong&gt;
+&lt;strong&gt;rocksdb.defaultcf.disable-auto-compactions [‘rocksdb’, ‘defaultcf’] disable-auto-compactions False&lt;/strong&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;接下来再试验一下short range scan。这次要优化的metric改成scan latency&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;workload=shortscan   knobs={‘bloom-filter-bits-per-key’, ‘optimize-filters-for-hits’, ‘block-size’, ‘disable-auto-compactions’}  metric=scan_latency&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-yaml highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;# Copyright (c) 2010 Yahoo! Inc. All rights reserved.                                                                                                                             &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#                                                                                                                                                                                 &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# Licensed under the Apache License, Version 2.0 (the &quot;License&quot;); you                                                                                                             &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# may not use this file except in compliance with the License. You                                                                                                                &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# may obtain a copy of the License at                                                                                                                                             &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#                                                                                                                                                                                 &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# http://www.apache.org/licenses/LICENSE-2.0                                                                                                                                      &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#                                                                                                                                                                                 &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# Unless required by applicable law or agreed to in writing, software                                                                                                             &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# distributed under the License is distributed on an &quot;AS IS&quot; BASIS,                                                                                                               &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or                                                                                                                 &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# implied. See the License for the specific language governing                                                                                                                    &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# permissions and limitations under the License. See accompanying                                                                                                                 &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# LICENSE file.                                                                                                                                                                   &lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;# Yahoo! Cloud System Benchmark&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# Workload E: Short ranges&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#   Application example: threaded conversations, where each scan is for the posts in a given thread (assumed to be clustered by thread id)&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#                        &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#   Scan/insert ratio: 95/5&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#   Default data size: 1 KB records (10 fields, 100 bytes each, plus key)&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#   Request distribution: zipfian&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;# The insert order is hashed, not ordered. Although the scans are ordered, it does not necessarily&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# follow that the data is inserted in order. For example, posts for thread 342 may not be inserted contiguously, but&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# instead interspersed with posts from lots of other threads. The way the YCSB client works is that it will pick a start&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# key, and then request a number of records; this works fine even for hashed insertion.&lt;/span&gt;
+
+&lt;span class=&quot;s&quot;&gt;recordcount=80000000&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;operationcount=200000&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;workload=core&lt;/span&gt;
+
+&lt;span class=&quot;s&quot;&gt;readallfields=true&lt;/span&gt;
+
+&lt;span class=&quot;s&quot;&gt;readproportion=0&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;updateproportion=0&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;scanproportion=1&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;insertproportion=0&lt;/span&gt;
+
+&lt;span class=&quot;s&quot;&gt;requestdistribution=uniform&lt;/span&gt;
+
+&lt;span class=&quot;s&quot;&gt;minscanlength=100&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;maxscanlength=100&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;# scanlengthdistribution=uniform&lt;/span&gt;
+
+&lt;span class=&quot;s&quot;&gt;shortscan workload定义&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;实验结果如下：&lt;/p&gt;
+
+&lt;div class=&quot;language-yaml highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;################## data ##################&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;------------------------------previous:------------------------------&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;rowlabels, finish_time, knobs, metrics&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;1 , 2021-07-18 18:29:05 , [1. 1. 1. 2. 1.] , [6.72800000e+02 7.53744000e+05 8.64420017e+10 2.40000000e-01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;2 , 2021-07-18 19:20:03 , [0. 3. 1. 3. 1.] , [6.1490000e+02 8.2401700e+05 8.6410917e+10 0.0000000e+00]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;3 , 2021-07-18 20:10:54 , [3. 0. 0. 0. 1.] , [6.64200000e+02 7.62370000e+05 8.74716093e+10 0.00000000e+00]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;4 , 2021-07-18 21:14:30 , [0. 1. 0. 1. 0.] , [4.05440000e+03 1.25855000e+05 8.64184132e+10 2.80100000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;5 , 2021-07-18 22:18:31 , [2. 1. 0. 3. 0.] , [4.23970000e+03 1.20196000e+05 8.60256954e+10 3.74100000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;6 , 2021-07-18 23:08:55 , [0. 0. 0. 1. 1.] , [7.07000000e+02 7.16597000e+05 8.68539722e+10 0.00000000e+00]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;7 , 2021-07-19 00:12:24 , [2. 1. 0. 3. 0.] , [4.5478000e+03 1.1218900e+05 8.6033236e+10 2.5120000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;8 , 2021-07-19 01:04:55 , [1. 3. 1. 4. 1.] , [4.96200000e+02 1.02048400e+06 8.63227618e+10 0.00000000e+00]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;9 , 2021-07-19 01:56:06 , [3. 3. 1. 0. 1.] , [6.6310000e+02 7.6451400e+05 8.7654137e+10 0.0000000e+00]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;10 , 2021-07-19 02:47:01 , [3. 3. 1. 2. 1.] , [6.66900000e+02 7.60646000e+05 8.65341307e+10 0.00000000e+00]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;11 , 2021-07-19 03:51:18 , [1. 1. 0. 2. 0.] , [4.19610000e+03 1.21614000e+05 8.60931486e+10 2.51200000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;12 , 2021-07-19 04:55:47 , [2. 0. 0. 3. 0.] , [4.3978000e+03 1.1592900e+05 8.6036505e+10 3.6290000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;13 , 2021-07-19 05:59:51 , [1. 1. 0. 3. 0.] , [4.35150000e+03 1.17180000e+05 8.60368063e+10 3.63800000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;14 , 2021-07-19 07:03:58 , [2. 0. 0. 2. 0.] , [3.77810000e+03 1.35018000e+05 8.60859856e+10 3.57900000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;15 , 2021-07-19 08:07:51 , [1. 0. 0. 3. 0.] , [4.66590000e+03 1.09339000e+05 8.60241768e+10 2.76200000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;16 , 2021-07-19 09:11:58 , [2. 1. 0. 2. 0.] , [4.09160000e+03 1.24662000e+05 8.60801061e+10 2.85700000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;17 , 2021-07-19 10:16:10 , [0. 0. 0. 2. 0.] , [4.05350000e+03 1.25774000e+05 8.60802488e+10 2.62900000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;18 , 2021-07-19 11:20:09 , [1. 0. 0. 3. 0.] , [4.68850000e+03 1.08877000e+05 8.59966196e+10 2.37400000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;19 , 2021-07-19 12:24:28 , [0. 2. 0. 2. 0.] , [4.25840000e+03 1.19757000e+05 8.60873241e+10 2.42100000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;20 , 2021-07-19 13:29:06 , [1. 0. 0. 2. 0.] , [3.77300000e+03 1.35303000e+05 8.60943509e+10 3.77800000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;21 , 2021-07-19 14:33:43 , [0. 1. 0. 3. 0.] , [4.67830000e+03 1.09096000e+05 8.60373353e+10 2.58500000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;22 , 2021-07-19 15:37:49 , [1. 0. 0. 3. 0.] , [4.72760000e+03 1.07929000e+05 8.60229122e+10 2.41700000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;23 , 2021-07-19 16:42:13 , [0. 1. 0. 2. 0.] , [3.83190000e+03 1.33200000e+05 8.61015852e+10 3.75200000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;24 , 2021-07-19 17:46:31 , [0. 0. 0. 4. 0.] , [4.80830000e+03 1.06059000e+05 8.59515848e+10 3.18500000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;25 , 2021-07-19 18:50:39 , [1. 0. 0. 3. 0.] , [4.51200000e+03 1.13177000e+05 8.60177759e+10 3.22500000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;26 , 2021-07-19 19:54:26 , [0. 2. 0. 4. 0.] , [4.86770000e+03 1.04802000e+05 8.59837067e+10 3.25800000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;27 , 2021-07-19 20:58:22 , [1. 0. 0. 4. 0.] , [4.9614000e+03 1.0285500e+05 8.5950186e+10 3.1870000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;28 , 2021-07-19 22:02:31 , [0. 0. 0. 3. 0.] , [4.37540000e+03 1.16648000e+05 8.60301063e+10 3.36500000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;29 , 2021-07-19 23:06:31 , [1. 2. 0. 4. 0.] , [4.95800000e+03 1.03017000e+05 8.60147679e+10 3.06400000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;30 , 2021-07-20 00:10:15 , [1. 0. 0. 4. 0.] , [5.20820000e+03 9.80490000e+04 8.59992036e+10 3.10200000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;31 , 2021-07-20 01:09:36 , [1. 3. 0. 3. 0.] , [4.63750000e+03 1.10141000e+05 8.60371023e+10 3.01500000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;32 , 2021-07-20 02:10:54 , [1. 1. 0. 4. 0.] , [4.89860000e+03 1.04158000e+05 8.59848252e+10 3.12700000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;33 , 2021-07-20 03:12:48 , [1. 0. 0. 3. 0.] , [4.54700000e+03 1.12233000e+05 8.60197859e+10 3.15300000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;34 , 2021-07-20 04:15:28 , [2. 2. 0. 4. 0.] , [4.95670000e+03 1.02892000e+05 8.60205523e+10 3.21900000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;35 , 2021-07-20 05:18:03 , [1. 0. 0. 4. 0.] , [4.82490000e+03 1.05684000e+05 8.59840325e+10 3.27900000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;36 , 2021-07-20 06:20:38 , [3. 1. 0. 4. 0.] , [4.98140000e+03 1.02350000e+05 8.59992772e+10 3.16700000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;37 , 2021-07-20 07:23:21 , [1. 0. 0. 4. 0.] , [4.97320000e+03 1.02554000e+05 8.59940724e+10 3.17100000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;38 , 2021-07-20 08:26:04 , [3. 3. 0. 3. 0.] , [4.59460000e+03 1.11100000e+05 8.60488145e+10 2.85000000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;39 , 2021-07-20 09:28:30 , [2. 0. 0. 4. 0.] , [4.85840000e+03 1.05104000e+05 8.59982211e+10 3.17800000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;40 , 2021-07-20 10:31:31 , [2. 3. 0. 2. 0.] , [4.13200000e+03 1.23462000e+05 8.61029034e+10 2.78400000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;41 , 2021-07-20 11:35:06 , [1. 0. 0. 4. 0.] , [5.00720000e+03 1.01956000e+05 8.60064623e+10 3.17800000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;42 , 2021-07-20 12:38:18 , [3. 0. 0. 4. 0.] , [4.87100000e+03 1.04930000e+05 8.59962461e+10 3.14800000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;43 , 2021-07-20 13:41:29 , [1. 0. 0. 4. 0.] , [4.9381000e+03 1.0334100e+05 8.6066299e+10 3.2380000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;44 , 2021-07-20 14:44:25 , [2. 1. 0. 4. 0.] , [5.01210000e+03 1.01852000e+05 8.59967147e+10 3.18600000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;45 , 2021-07-20 15:47:21 , [1. 0. 0. 4. 0.] , [4.86200000e+03 1.04912000e+05 8.60001832e+10 3.25000000e+01]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;------------------------------new:------------------------------&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;knobs&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;   &lt;span class=&quot;pi&quot;&gt;[[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;3. 0. 1. 4. 0.&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]]&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;metrics&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;   &lt;span class=&quot;pi&quot;&gt;[[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;5.02470000e+03 1.01642000e+05 8.59832276e+10 3.08800000e+01&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]]&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;rowlabels&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;   &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;timestamp&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;   &lt;span class=&quot;s&quot;&gt;2021-07-20 16:50:32&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;------------------------------TARGET:------------------------------&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;knob&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;   &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;rocksdb.writecf.bloom-filter-bits-per-key'&lt;/span&gt;
+ &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;rocksdb.defaultcf.bloom-filter-bits-per-key'&lt;/span&gt;
+ &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;rocksdb.writecf.optimize-filters-for-hits'&lt;/span&gt;
+ &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;rocksdb.defaultcf.block-size'&lt;/span&gt;
+ &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;rocksdb.defaultcf.disable-auto-compactions'&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;metric&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;   &lt;span class=&quot;s&quot;&gt;scan_latency&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;metric_lessisbetter&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;   &lt;span class=&quot;m&quot;&gt;1&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;------------------------------------------------------------&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;num of knobs ==  &lt;/span&gt;&lt;span class=&quot;m&quot;&gt;5&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;knobs&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;   &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;rocksdb.writecf.bloom-filter-bits-per-key'&lt;/span&gt;
+ &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;rocksdb.defaultcf.bloom-filter-bits-per-key'&lt;/span&gt;
+ &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;rocksdb.writecf.optimize-filters-for-hits'&lt;/span&gt;
+ &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;rocksdb.defaultcf.block-size'&lt;/span&gt;
+ &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;rocksdb.defaultcf.disable-auto-compactions'&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;num of metrics ==  &lt;/span&gt;&lt;span class=&quot;m&quot;&gt;4&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;metrics&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;   &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;scan_throughput'&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;scan_latency'&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;store_size'&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;compaction_cpu'&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;------------------------------------------------------------&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;################## data ##################&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;由于时间有限我们先看前 45 轮的结果。这个推荐结果还没有完全收敛，但基本上满足optimize-filters-for-hits=False，block-size=32KB 或者 64KB，disable-auto-compactions=False，这三个也是对结果影响最明显的参数了。根据 Intel 的 SSD 白皮书，SSD 对 32KB 和 64KB 大小的随机读性能其实差不多。bloom filter 的位数对 scan 操作的影响也不大。这个实验结果也是符合预期了。&lt;/p&gt;
+
+&lt;p&gt;Ref:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;workload的定义    https://github.com/brianfrankcooper/YCSB/wiki/Core-Properties&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;总结&quot;&gt;&lt;strong&gt;总结&lt;/strong&gt;&lt;/h3&gt;
+
+&lt;p&gt;一个复杂的系统需要很多环节的取舍和平衡，才能使得总体运行效果达到最好。这需要对整个系统各个环节都有很深入的理解。调试 AutoTikv 的时候也发现过很多参数设置的结果并不符合预期的情况，后来仔细分析了 grafana 中的图表才发现其中的一些门路：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;有些参数对结果的影响并没有很大。比如这个参数起作用的场景根本没有触发，或者说和它相关的硬件并没有出现性能瓶颈&lt;/li&gt;
+  &lt;li&gt;有些参数直接动态调整是达不到效果的，或者需要跑足够长时间的 workload 才能看出效果。例如 block cache size 刚从小改大的一小段时间肯定是装不满的，必须要等 workload 足够把它填满之后，才能看出大缓存对总体 cache hit 的提升效果&lt;/li&gt;
+  &lt;li&gt;有些参数的效果和预期相反，分析了发现该参数其实是有副作用的，在某些场景下就不大行了（比如上面的 bloom filter 那个例子）&lt;/li&gt;
+  &lt;li&gt;有些 workload 并不是完全的读或者写，还会掺杂一些别的操作。而人工判断预期效果的时候很可能忽略这一点（比如上面的 writeheavy）。特别是在实际生产环境中，DBA 并不能提前知道会遇到什么样的 workload。这大概也就是自动调优的作用吧&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Ref：&lt;/p&gt;
+
+&lt;p&gt;贝叶斯优化&lt;/p&gt;
+
+&lt;p&gt;https://blog.csdn.net/Leon_winter/article/details/86604553&lt;/p&gt;
+
+&lt;p&gt;https://blog.csdn.net/a769096214/article/details/80920304&lt;/p&gt;
+
+&lt;p&gt;https://docs.google.com/document/d/1raibF5LLmmYvfYo8rMK_TP4EJPDj2RzlSZFp1a3ligU/edit?ts=5ce5c60a#heading=h.losu3j60zo6r&lt;/p&gt;
+</description>
+                <pubDate>Mon, 04 Oct 2021 00:00:00 +0800</pubDate>
+                <link>http://localhost:4000/2021/10/04/first/</link>
+                <guid isPermaLink="true">http://localhost:4000/2021/10/04/first/</guid>
+            </item>
+        
+    </channel>
+</rss>
+
