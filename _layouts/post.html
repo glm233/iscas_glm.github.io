@@ -1,6 +1,7 @@
 ---
 layout: default
 ---
+
 <section class="collection-head small geopattern" data-pattern-id="{{ page.title | truncate: 15, ''}}">
 <div class="container">
   <div class="columns">
@@ -45,5 +46,21 @@ layout: default
     {% include sidebar-post-nav.html %}
   </div>
 </div>
+
+<div id="gitmentContainer"></div>
+<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">
+<script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script>
+<script>
+var gitment = new Gitment({
+    owner: 'iscas-glm',
+    repo: 'https://github.com/iscas-glm/iscas-glm.github.io',
+    oauth: {
+        client_id: '36ec10aac2210ff4b132',
+        client_secret: '8372bc2bc7cfff428380317f35d19b170534a90a',
+    },
+});
+gitment.render('gitmentContainer');
+</script>
+
 </section>
 <!-- /section.content -->
