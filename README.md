@@ -1,1 +1,1 @@
-# iscas_glm.github.io
+# iscas-glm.github.io
