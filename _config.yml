@@ -33,7 +33,7 @@ navs:
 # RSS
 name:     glm@iscas's homepage
 subscribe_rss: /feed.xml
-
+baidu-analysis: e589b334f4625414ca59828e18e21956
 # Jekyll
 markdown: kramdown
 kramdown:
