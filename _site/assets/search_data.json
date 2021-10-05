@@ -35,6 +35,13 @@
       "category" : "技术篇",
       
       "url"      : "http://localhost:4000/2021/10/04/first/"
+    } ,
+  
+    {
+      "title"    : "Shell学习",
+      "category" : "技术篇",
+      
+      "url"      : "http://localhost:4000/2021/10/05/shell/"
     } 
   
 ]
