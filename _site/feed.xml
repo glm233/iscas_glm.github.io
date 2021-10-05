@@ -10,7 +10,76 @@
         
             <item>
                 <title>Shell学习</title>
-                <description>
+                <description>&lt;p&gt;#Shell总览&lt;/p&gt;
+
+&lt;h2 id=&quot;shell概念&quot;&gt;Shell概念&lt;/h2&gt;
+
+&lt;p&gt;Shell是解释性语言 不需要编译再运行 是在terminal中执行，本质上是脚本&lt;/p&gt;
+
+&lt;h2 id=&quot;shell类型&quot;&gt;Shell类型&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Bourne Shell(/usr/bin/sh或/bin/sh)&lt;/li&gt;
+  &lt;li&gt;Bourne Again Shell(/bin/bash)&lt;/li&gt;
+  &lt;li&gt;C Shell(/usr/bin/csh)&lt;/li&gt;
+  &lt;li&gt;K Shell(/usr/bin/ksh)&lt;/li&gt;
+  &lt;li&gt;zsh&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;引入&quot;&gt;引入&lt;/h3&gt;
+
+&lt;h3 id=&quot;1预定义符号&quot;&gt;1.预定义符号&lt;/h3&gt;
+
+&lt;p&gt;Linux系统中一般默认使用bash，所以接下来讲解bash中的语法。
+文件开头需要写#! /bin/bash，指明bash为脚本解释器。&lt;/p&gt;
+
+&lt;h3 id=&quot;2运行方式&quot;&gt;2.运行方式&lt;/h3&gt;
+
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;chmod&lt;/span&gt; +x xxx.sh &lt;span class=&quot;c&quot;&gt;# 加权限 xxx.sh是你要运行的sh脚本&lt;/span&gt;
+目录+xx.sh
+或者 指定解释器+xx.sh
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;3注释&quot;&gt;3.注释&lt;/h3&gt;
+
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;:&lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;EOF&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;
+第一行注释
+第二行注释
+第三行注释
+&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;EOF
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;编码规范&quot;&gt;编码规范&lt;/h2&gt;
+
+&lt;h3 id=&quot;1定义变量&quot;&gt;1.定义变量:&lt;/h3&gt;
+
+&lt;p&gt;1.1.不能有空格&lt;/p&gt;
+
+&lt;p&gt;1.2.定义字符串 可以加单引号 也可以双引号，也可以不加&lt;/p&gt;
+
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;name1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'yxc'&lt;/span&gt;  &lt;span class=&quot;c&quot;&gt;# 单引号定义字符串&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;name2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;yxc&quot;&lt;/span&gt;  &lt;span class=&quot;c&quot;&gt;# 双引号定义字符串&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;name3&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;yxc    &lt;span class=&quot;c&quot;&gt;# 也可以不加引号，同样表示字符串&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;2.使用变量&lt;/p&gt;
+
+&lt;p&gt;使用变量可以不用花括号  ${}$,只是为了区分&lt;/p&gt;
+
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;yxc
+&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$name&lt;/span&gt;  &lt;span class=&quot;c&quot;&gt;# 输出yxc&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;  &lt;span class=&quot;c&quot;&gt;# 输出yxc&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;acwing  &lt;span class=&quot;c&quot;&gt;# 输出yxcacwing&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;3.只读变量&lt;/p&gt;
+
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;glm
+&lt;span class=&quot;nb&quot;&gt;readonly &lt;/span&gt;name
+或者 &lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-r&lt;/span&gt; name
+此时改变name内容会报错
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
 </description>
                 <pubDate>Tue, 05 Oct 2021 00:00:00 +0800</pubDate>
                 <link>http://localhost:4000/2021/10/05/shell/</link>

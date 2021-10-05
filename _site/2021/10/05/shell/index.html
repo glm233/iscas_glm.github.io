@@ -30,8 +30,8 @@
     <meta name="keywords" content="shell">
     <meta name="og:keywords" content="shell">
       
-    <meta name="description" content="">
-    <meta name="og:description" content="">
+    <meta name="description" content="#Shell总览">
+    <meta name="og:description" content="#Shell总览">
       
     
     
@@ -110,7 +110,76 @@
 <div class="columns">
   <div class="column three-fourths" >
     <article class="article-content markdown-body">
-    
+    <p>#Shell总览</p>
+
+<h2 id="shell概念">Shell概念</h2>
+
+<p>Shell是解释性语言 不需要编译再运行 是在terminal中执行，本质上是脚本</p>
+
+<h2 id="shell类型">Shell类型</h2>
+
+<ul>
+  <li>Bourne Shell(/usr/bin/sh或/bin/sh)</li>
+  <li>Bourne Again Shell(/bin/bash)</li>
+  <li>C Shell(/usr/bin/csh)</li>
+  <li>K Shell(/usr/bin/ksh)</li>
+  <li>zsh</li>
+</ul>
+
+<h3 id="引入">引入</h3>
+
+<h3 id="1预定义符号">1.预定义符号</h3>
+
+<p>Linux系统中一般默认使用bash，所以接下来讲解bash中的语法。
+文件开头需要写#! /bin/bash，指明bash为脚本解释器。</p>
+
+<h3 id="2运行方式">2.运行方式</h3>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">chmod</span> +x xxx.sh <span class="c"># 加权限 xxx.sh是你要运行的sh脚本</span>
+目录+xx.sh
+或者 指定解释器+xx.sh
+</code></pre></div></div>
+
+<h3 id="3注释">3.注释</h3>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>:<span class="o">&lt;&lt;</span><span class="no">EOF</span><span class="sh">
+第一行注释
+第二行注释
+第三行注释
+</span><span class="no">EOF
+</span></code></pre></div></div>
+
+<h2 id="编码规范">编码规范</h2>
+
+<h3 id="1定义变量">1.定义变量:</h3>
+
+<p>1.1.不能有空格</p>
+
+<p>1.2.定义字符串 可以加单引号 也可以双引号，也可以不加</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">name1</span><span class="o">=</span><span class="s1">'yxc'</span>  <span class="c"># 单引号定义字符串</span>
+<span class="nv">name2</span><span class="o">=</span><span class="s2">"yxc"</span>  <span class="c"># 双引号定义字符串</span>
+<span class="nv">name3</span><span class="o">=</span>yxc    <span class="c"># 也可以不加引号，同样表示字符串</span>
+</code></pre></div></div>
+
+<p>2.使用变量</p>
+
+<p>使用变量可以不用花括号  ${}$,只是为了区分</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">name</span><span class="o">=</span>yxc
+<span class="nb">echo</span> <span class="nv">$name</span>  <span class="c"># 输出yxc</span>
+<span class="nb">echo</span> <span class="k">${</span><span class="nv">name</span><span class="k">}</span>  <span class="c"># 输出yxc</span>
+<span class="nb">echo</span> <span class="k">${</span><span class="nv">name</span><span class="k">}</span>acwing  <span class="c"># 输出yxcacwing</span>
+</code></pre></div></div>
+
+<p>3.只读变量</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">name</span><span class="o">=</span>glm
+<span class="nb">readonly </span>name
+或者 <span class="nb">declare</span> <span class="nt">-r</span> name
+此时改变name内容会报错
+</code></pre></div></div>
+
 
     </article>
     <div class="share">
