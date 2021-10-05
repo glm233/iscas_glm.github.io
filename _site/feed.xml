@@ -9,7 +9,7 @@
         <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
         
             <item>
-                <title>template page</title>
+                <title>前沿数据库调参工具部署踩坑及收获</title>
                 <description>&lt;h1 id=&quot;前沿数据库调参工具部署踩坑及收获&quot;&gt;前沿数据库调参工具部署踩坑及收获&lt;/h1&gt;
 
 &lt;p&gt;前言：今年暑假有幸参加浙江大学软件学院暑期夏令营，我加入的是数据智能实验室，实验室里的老师也在7.5-7.6期间介绍了当下数据库前沿的一些发展方向以及实验室的主要研究。&lt;/p&gt;

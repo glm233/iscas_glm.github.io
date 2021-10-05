@@ -71,6 +71,5 @@ google:
 github: [metadata]
 
 #Comment
-Comments:
-    comments_provider:gitalk
+
 

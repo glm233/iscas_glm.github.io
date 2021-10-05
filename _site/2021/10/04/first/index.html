@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <title>template page &mdash; glm@iscas</title>
+    <title>前沿数据库调参工具部署踩坑及收获 &mdash; glm@iscas</title>
     <link rel="stylesheet" href="http://localhost:4000/assets/vendor/primer-css/css/primer.css">
     <link rel="stylesheet" href="http://localhost:4000/assets/vendor/primer-markdown/dist/user-content.min.css">
     <link rel="stylesheet" href="http://localhost:4000/assets/vendor/octicons/octicons/octicons.css">
@@ -25,10 +25,10 @@
     <link rel="alternate" type="application/atom+xml" title="glm@iscas" href="http://localhost:4000/feed.xml">
     <link rel="shortcut icon" href="http://localhost:4000/favicon.ico">
     
-    <meta property="og:title" content="template page">
+    <meta property="og:title" content="前沿数据库调参工具部署踩坑及收获">
       
-    <meta name="keywords" content="keyword1, keyword2">
-    <meta name="og:keywords" content="keyword1, keyword2">
+    <meta name="keywords" content="数据库 Ottertune AI DB">
+    <meta name="og:keywords" content="数据库 Ottertune AI DB">
       
     <meta name="description" content="前沿数据库调参工具部署踩坑及收获">
     <meta name="og:description" content="前沿数据库调参工具部署踩坑及收获">
@@ -78,16 +78,14 @@
     <!-- / header -->
 
   <head>
-  <!-- style sheet of Vssue -->
-  <link rel="stylesheet" href="https://unpkg.com/vssue/dist/vssue.min.css">
+    <script src='//unpkg.com/valine/dist/Valine.min.js'></script>
 </head>
-
-<section class="collection-head small geopattern" data-pattern-id="template page">
+<section class="collection-head small geopattern" data-pattern-id="前沿数据库调参工具部署踩坑及收">
 <div class="container">
   <div class="columns">
     <div class="column three-fourths">
       <div class="collection-title">
-        <h1 class="collection-header">template page</h1>
+        <h1 class="collection-header">前沿数据库调参工具部署踩坑及收获</h1>
         <div class="collection-info">
           
           <span class="meta-info">
@@ -97,7 +95,7 @@
           
           <span class="meta-info">
             <span class="octicon octicon-file-directory"></span>
-            <a href="http://localhost:4000/categories/#Article" title="Article">Article</a>
+            <a href="http://localhost:4000/categories/#技术篇" title="技术篇">技术篇</a>
           </span>
           
         </div>
@@ -946,6 +944,7 @@
   
 
 
+
     </div>
   </div>
   <div class="column one-fourth">
@@ -992,34 +991,15 @@ SimpleJekyllSearch({
   </div>
 </div>
 
- 
-<div id="vssue"></div>
+<div id="vcomments"></div>
+    <script>
+        new Valine({
+            el: '#vcomments',
+            appId: '3aGyBD5ynY3N4Arg1GQm6LFK-gzGzoHsz',
+            appKey: 'p6CLQdyUAo6FIVxv9WThTPc7'
+        })
+    </script>
 
-  <!-- Introduce Vue first -->
-
-  <!-- vue runtime build (runtime only)  -->
- <script src="https://unpkg.com/vue/dist/vue.min.js"></script>
-
-  <script src="https://unpkg.com/vssue/dist/vssue.gitee.min.js"></script>
-
-   <script>
-    new Vue({
-      el: '#vssue',
-
-      data: {
-        title: 'Vssue Dev',
-
-        options: {
-          owner: 'iscas-glm',
-          repo: 'iscas-glm.github.io',
-          clientId: 'a3f7bd4083117582477490286adedc95032ced9e1daf0d7cb90fe5d3d4985e85',
-          clientSecret: 'fb5423a3a0d4b32c587fafcd7f27c80b8f484cf37942f95a30d8159220ffc3a5', // only required for some of the platforms
-        },
-      },
-
-      template: `<vssue :title="title" :options="options"></vssue>`,
-    })
-  </script>
 
 </section>
 <!-- /section.content -->
@@ -1095,7 +1075,17 @@ SimpleJekyllSearch({
 </body>
 </html>
 
+<head>
+		<!-- Global site tag (gtag.js) - Google Analytics -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-WZTBHWQGVX"></script>
+	<script>
+	  window.dataLayer = window.dataLayer || [];
+	  function gtag(){dataLayer.push(arguments);}
+	  gtag('js', new Date());
 
+	  gtag('config', 'G-WZTBHWQGVX');
+	</script>
+</head>
 <script type="text/x-mathjax-config">
 MathJax.Hub.Config({
   tex2jax: {
@@ -1104,4 +1094,10 @@ MathJax.Hub.Config({
   }
 });
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript">
+</script>
+
+<script src="https://giteement.oss-cn-beijing.aliyuncs.com/oauthcallback.browser.js"></script>
+<script>
+  Oauthcallback();
+</script>

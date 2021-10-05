@@ -10,6 +10,13 @@
   
   
   
+    {
+      "title"    : "Summary",
+      "url"      : "http://localhost:4000/article/"
+    } ,
+  
+  
+  
   
   
   
@@ -24,8 +31,8 @@
 
   
     {
-      "title"    : "template page",
-      "category" : "Article",
+      "title"    : "前沿数据库调参工具部署踩坑及收获",
+      "category" : "技术篇",
       
       "url"      : "http://localhost:4000/2021/10/04/first/"
     } 
