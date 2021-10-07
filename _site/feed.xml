@@ -9,37 +9,30 @@
         <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
         
             <item>
-                <title>Acwing 300. 任务安排1</title>
-                <description>&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;layout: post
-title: AcWing 300. 任务安排1
-categories: 算法题
-description: 《算法竞赛进阶指南》, SDOI2012 
-keywords: 前缀和 dp优化
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;&lt;a href=&quot;https://imgtu.com/i/5SiRzt&quot;&gt;&lt;img src=&quot;https://z3.ax1x.com/2021/10/07/5SiRzt.png&quot; alt=&quot;5SiRzt.png&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+                <title>AcWing 300. 任务安排1</title>
+                <description>&lt;p&gt;&lt;a href=&quot;https://imgtu.com/i/5SiRzt&quot;&gt;&lt;img src=&quot;https://z3.ax1x.com/2021/10/07/5SiRzt.png&quot; alt=&quot;5SiRzt.png&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
 
 &lt;p&gt;思路：&lt;/p&gt;
 
-&lt;p&gt;首先不难想到暴力解法：
-$$
-\begin{aligned}
-&amp;amp;dp[i][j]表示前i个任务分成j组的最小花费，那么递推方程为：\&lt;/p&gt;
+&lt;p&gt;首先不难想到暴力解法：&lt;/p&gt;
 
-&lt;p&gt;&amp;amp;dp[i][j]=min(dp[k][j-1]+(S&lt;em&gt;j+sumt[i])&lt;/em&gt;(sumc[i]-sumc[k]),dp[i][j]),j-1&amp;lt;=k&amp;lt;i\&lt;/p&gt;
+\[\begin{aligned}
+&amp;amp;dp[i][j]表示前i个任务分成j组的最小花费，那么递推方程为：\\
 
-&lt;p&gt;&amp;amp;本质是枚举分组的间隔点，复杂度是O(n^3) \&lt;/p&gt;
+&amp;amp;dp[i][j]=min(dp[k][j-1]+(S*j+sumt[i])*(sumc[i]-sumc[k]),dp[i][j]),j-1&amp;lt;=k&amp;lt;i\\
 
-&lt;p&gt;&amp;amp;那么我们可以进一步优化，\&lt;/p&gt;
+&amp;amp;本质是枚举分组的间隔点，复杂度是O(n^3) \\
 
-&lt;p&gt;&amp;amp;注意到这个j是我们自己引入的,我们可以让dp[i]表示前i个任务以某种合理方案划分的最小花费，那么递推方程为\&lt;/p&gt;
+&amp;amp;那么我们可以进一步优化，\\
 
-&lt;p&gt;&amp;amp;dp[i]=min(dp[j]+S&lt;em&gt;(sumc[n]-sumc[j])+sumt[i]&lt;/em&gt;(sumc[i]-sumc[j]),dp[i]),0&amp;lt;j&amp;lt;i\&lt;/p&gt;
+&amp;amp;注意到这个j是我们自己引入的,我们可以让dp[i]表示前i个任务以某种合理方案划分的最小花费，那么递推方程为\\
 
-&lt;p&gt;&amp;amp;这个优化的本质是提前计算费用，我们每次分组都会新增费用，而这个费用是可以计算的（S*(sumc[n]-sumc[j])）&lt;br /&gt;
-\end{aligned}
-$$
-代码：&lt;/p&gt;
+&amp;amp;dp[i]=min(dp[j]+S*(sumc[n]-sumc[j])+sumt[i]*(sumc[i]-sumc[j]),dp[i]),0&amp;lt;j&amp;lt;i\\
+
+&amp;amp;这个优化的本质是提前计算费用，我们每次分组都会新增费用，而这个费用是可以计算的（S*(sumc[n]-sumc[j])）\\
+\end{aligned}\]
+
+&lt;p&gt;代码：&lt;/p&gt;
 
 &lt;div class=&quot;language-c++ highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;cp&quot;&gt;#include&amp;lt;iostream&amp;gt;
 #include&amp;lt;limits.h&amp;gt;
@@ -72,8 +65,8 @@ $$
 
 </description>
                 <pubDate>Wed, 06 Oct 2021 00:00:00 +0800</pubDate>
-                <link>http://localhost:4000/2021/10/06/AcWing-300.-%E4%BB%BB%E5%8A%A1%E5%AE%89%E6%8E%921/</link>
-                <guid isPermaLink="true">http://localhost:4000/2021/10/06/AcWing-300.-%E4%BB%BB%E5%8A%A1%E5%AE%89%E6%8E%921/</guid>
+                <link>http://localhost:4000/2021/10/06/Acwing/</link>
+                <guid isPermaLink="true">http://localhost:4000/2021/10/06/Acwing/</guid>
             </item>
         
             <item>
