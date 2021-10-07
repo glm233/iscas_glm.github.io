@@ -38,6 +38,8 @@ baidu-analysis: e589b334f4625414ca59828e18e21956
 markdown: kramdown
 kramdown:
     input: GFM
+    syntax_highlighter: rouge
+    math_engine: katex
 highlighter: rouge
 paginate: 8
 lsi: false
