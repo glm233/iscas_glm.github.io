@@ -9,6 +9,26 @@
         <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
         
             <item>
+                <title>虚拟化技术</title>
+                <description>&lt;p&gt;概念解析：&lt;/p&gt;
+
+&lt;p&gt;1.虚拟化：一种形式的资源抽象成另一种形式的技术 例如虚存技术&lt;/p&gt;
+
+&lt;p&gt;2.Virtual Machine，简称VM：即虚拟机，它所抽象的是整个物理机，包括CPU、内存和I/O设备&lt;/p&gt;
+
+&lt;p&gt;3.VMM(Virtual Machine Monitor):提供虚拟化的平台&lt;/p&gt;
+
+&lt;p&gt;4.Guest VM:在VMM上运行的虚机&lt;/p&gt;
+
+&lt;p&gt;5.Guest VM的运行方式：完全虚拟化（Full Virtualization）和类虚拟化（Para Virtualization）&lt;/p&gt;
+
+</description>
+                <pubDate>Fri, 08 Oct 2021 00:00:00 +0800</pubDate>
+                <link>http://localhost:4000/2021/10/08/Virtualization/</link>
+                <guid isPermaLink="true">http://localhost:4000/2021/10/08/Virtualization/</guid>
+            </item>
+        
+            <item>
                 <title>AcWing 300. 任务安排1</title>
                 <description>&lt;p&gt;&lt;a href=&quot;https://imgtu.com/i/5SiRzt&quot;&gt;&lt;img src=&quot;https://z3.ax1x.com/2021/10/07/5SiRzt.png&quot; alt=&quot;5SiRzt.png&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
 

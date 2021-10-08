@@ -39,7 +39,7 @@
   
     {
       "title"    : "Shell学习",
-      "category" : "技术篇",
+      "category" : "Shell语言",
       
       "url"      : "http://localhost:4000/2021/10/05/shell/"
     } ,
@@ -49,6 +49,13 @@
       "category" : "算法题",
       
       "url"      : "http://localhost:4000/2021/10/06/Acwing/"
+    } ,
+  
+    {
+      "title"    : "虚拟化技术",
+      "category" : "Visualization",
+      
+      "url"      : "http://localhost:4000/2021/10/08/Virtualization/"
     } 
   
 ]
