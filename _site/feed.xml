@@ -48,6 +48,10 @@
 
 &lt;p&gt;混合模型，结合上述两种模型，VMM拥有所有物理资源，但是I/O设备由一个Service OS接管，运行在特权级别，自己主要负责CPU管理和内存管理。&lt;/p&gt;
 
+&lt;p&gt;参考：&lt;/p&gt;
+
+&lt;p&gt;【1】.https://zhuanlan.zhihu.com/p/75649437&lt;/p&gt;
+
 </description>
                 <pubDate>Fri, 08 Oct 2021 00:00:00 +0800</pubDate>
                 <link>http://localhost:4000/2021/10/08/Virtualization/</link>

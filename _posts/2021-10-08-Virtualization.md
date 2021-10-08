@@ -44,3 +44,7 @@ keywords: 虚拟化
 
 混合模型，结合上述两种模型，VMM拥有所有物理资源，但是I/O设备由一个Service OS接管，运行在特权级别，自己主要负责CPU管理和内存管理。
 
+参考：
+
+【1】.https://zhuanlan.zhihu.com/p/75649437
+
