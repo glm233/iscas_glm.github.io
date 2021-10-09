@@ -9,7 +9,7 @@
         <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
         
             <item>
-                <title>虚拟化技术</title>
+                <title>虚拟化技术(二):不同VMM在不同架构上的实现</title>
                 <description>&lt;h5 id=&quot;常见虚拟化技术概念解析&quot;&gt;常见虚拟化技术概念解析：&lt;/h5&gt;
 
 &lt;p&gt;1.虚拟化：一种形式的资源抽象成另一种形式的技术 例如虚存技术&lt;/p&gt;
@@ -53,14 +53,72 @@
 &lt;p&gt;【1】.https://zhuanlan.zhihu.com/p/75649437&lt;/p&gt;
 
 </description>
+                <pubDate>Sat, 09 Oct 2021 00:00:00 +0800</pubDate>
+                <link>http://localhost:4000/2021/10/09/Virtualization2/</link>
+                <guid isPermaLink="true">http://localhost:4000/2021/10/09/Virtualization2/</guid>
+            </item>
+        
+            <item>
+                <title>虚拟化技术(一):基本概念</title>
+                <description>&lt;p&gt;常见虚拟化技术概念解析&lt;/p&gt;
+
+&lt;!--more--&gt;
+
+&lt;h5 id=&quot;常见虚拟化技术概念解析&quot;&gt;常见虚拟化技术概念解析：&lt;/h5&gt;
+
+&lt;p&gt;1.虚拟化：一种形式的资源抽象成另一种形式的技术 例如虚存技术&lt;/p&gt;
+
+&lt;p&gt;2.Virtual Machine，简称VM：即虚拟机，它所抽象的是整个物理机，包括CPU、内存和I/O设备&lt;/p&gt;
+
+&lt;p&gt;3.VMM(Virtual Machine Monitor):提供虚拟化的平台&lt;/p&gt;
+
+&lt;p&gt;4.Guest VM:在VMM上运行的虚机&lt;/p&gt;
+
+&lt;p&gt;5.Guest VM的运行方式：完全虚拟化（Full Virtualization）和类虚拟化（Para Virtualization）&lt;/p&gt;
+
+&lt;p&gt;6.完全虚拟化：VMM需要正确处理guest所有可能的指令&lt;/p&gt;
+
+&lt;p&gt;​	最简单直接的方法就是，VMM对guest运行过程中的每一条指令都进行解释和执行，模拟出这条指令执行的效果，这种方法既适用于和VMM相同体系结构的guest，也能用于模拟和VMM不同体系结构的guest（比如物理CPU是x86的，而guest是基于ARM的），其缺点也很明显，就是性能太差。&lt;/p&gt;
+
+&lt;p&gt;​	但是有一些指令是要操作特权资源的，比如修改虚拟机的运行模式或者下面物理机的状态，读写时钟或者中断寄存器，这些指令被称为敏感指令，确实不适合由guest直接来控制。&lt;/p&gt;
+
+&lt;p&gt;​	然而其他的一些非敏感指令，是完全可以在物理CPU上直接执行并返回结果给guest的，VMM只需要截获并模拟guest对敏感指令的执行和对特权资源的访问就可以了，以intel的VT-x和AMD的AMD-V为代表的硬件辅助虚拟化技术，就可以帮助VMM高效地识别和截获这些敏感指令。【1】&lt;/p&gt;
+
+&lt;p&gt;7：类虚拟化：&lt;/p&gt;
+
+&lt;p&gt;通过二进制代码翻译（binary translation），扫描并修改guest的二进制代码将难以虚拟化的指令转换成支持虚拟化的指令&lt;/p&gt;
+
+&lt;h5 id=&quot;虚拟化技术架构&quot;&gt;虚拟化技术架构：&lt;/h5&gt;
+
+&lt;p&gt;1.&lt;strong&gt;Hypervisor模型&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;具备传统操作系统的功能，还具备虚拟化功能。包括CPU、内存和I/O设备在内的所有物理资源都归VMM所有，因此VMM不仅要负责虚拟机环境的创建和管理，还承担着管理物理资源的责任。&lt;/p&gt;
+
+&lt;p&gt;2.&lt;strong&gt;Host模型&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;物理资源由宿主机管理，虚拟化功能由VMM调度，VMM创建出的虚机只是Host主机的一个进程参与调度&lt;/p&gt;
+
+&lt;p&gt;3.&lt;strong&gt;混合模型&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;混合模型，结合上述两种模型，VMM拥有所有物理资源，但是I/O设备由一个Service OS接管，运行在特权级别，自己主要负责CPU管理和内存管理。&lt;/p&gt;
+
+&lt;p&gt;参考：&lt;/p&gt;
+
+&lt;p&gt;【1】.https://zhuanlan.zhihu.com/p/75649437&lt;/p&gt;
+
+</description>
                 <pubDate>Fri, 08 Oct 2021 00:00:00 +0800</pubDate>
-                <link>http://localhost:4000/2021/10/08/Virtualization/</link>
-                <guid isPermaLink="true">http://localhost:4000/2021/10/08/Virtualization/</guid>
+                <link>http://localhost:4000/2021/10/08/Virtualization1/</link>
+                <guid isPermaLink="true">http://localhost:4000/2021/10/08/Virtualization1/</guid>
             </item>
         
             <item>
                 <title>AcWing 300. 任务安排1</title>
-                <description>&lt;p&gt;&lt;a href=&quot;https://imgtu.com/i/5SiRzt&quot;&gt;&lt;img src=&quot;https://z3.ax1x.com/2021/10/07/5SiRzt.png&quot; alt=&quot;5SiRzt.png&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+                <description>&lt;p&gt;dp优化+前缀和&lt;/p&gt;
+
+&lt;!--more--&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://imgtu.com/i/5SiRzt&quot;&gt;&lt;img src=&quot;https://z3.ax1x.com/2021/10/07/5SiRzt.png&quot; alt=&quot;5SiRzt.png&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
 
 &lt;p&gt;思路：&lt;/p&gt;
 
@@ -121,7 +179,11 @@
         
             <item>
                 <title>Shell学习</title>
-                <description>&lt;h1 id=&quot;shell总览&quot;&gt;Shell总览&lt;/h1&gt;
+                <description>&lt;p&gt;shell语言学习（一）基本概念、编码规范&lt;/p&gt;
+
+&lt;!--more--&gt;
+
+&lt;h1 id=&quot;shell总览&quot;&gt;Shell总览&lt;/h1&gt;
 
 &lt;h2 id=&quot;shell概念&quot;&gt;Shell概念&lt;/h2&gt;
 

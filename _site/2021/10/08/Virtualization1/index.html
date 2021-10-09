@@ -19,7 +19,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <title>Shell学习 &mdash; glm@iscas</title>
+    <title>虚拟化技术(一):基本概念 &mdash; glm@iscas</title>
     <link rel="stylesheet" href="http://localhost:4000/assets/vendor/primer-css/css/primer.css">
     <link rel="stylesheet" href="http://localhost:4000/assets/vendor/primer-markdown/dist/user-content.min.css">
     <link rel="stylesheet" href="http://localhost:4000/assets/vendor/octicons/octicons/octicons.css">
@@ -36,28 +36,28 @@
     
 
     
-    <link rel="canonical" href="http://localhost:4000/2021/10/05/shell/">
+    <link rel="canonical" href="http://localhost:4000/2021/10/08/Virtualization1/">
     <link rel="alternate" type="application/atom+xml" title="glm@iscas" href="http://localhost:4000/feed.xml">
     <link rel="shortcut icon" href="http://localhost:4000/favicon.ico">
     
-    <meta property="og:title" content="Shell学习">
+    <meta property="og:title" content="虚拟化技术(一):基本概念">
       
-    <meta name="keywords" content="shell">
-    <meta name="og:keywords" content="shell">
+    <meta name="keywords" content="虚拟化">
+    <meta name="og:keywords" content="虚拟化">
       
-    <meta name="description" content="shell语言学习（一）基本概念、编码规范">
-    <meta name="og:description" content="shell语言学习（一）基本概念、编码规范">
+    <meta name="description" content="常见虚拟化技术概念解析">
+    <meta name="og:description" content="常见虚拟化技术概念解析">
       
     
     
         
     
-    <meta property="og:url" content="http://localhost:4000/2021/10/05/shell/">
+    <meta property="og:url" content="http://localhost:4000/2021/10/08/Virtualization1/">
     <meta property="og:site_name" content="glm@iscas">
     <meta property="og:type" content="article">
     <meta property="og:locale" content="zh_CN" />
     
-    <meta property="article:published_time" content="2021-10-05">
+    <meta property="article:published_time" content="2021-10-08">
     
     <script src="http://localhost:4000/assets/vendor/jquery/dist/jquery.min.js"></script>
     <script src="http://localhost:4000/assets/js/jquery-ui.js"></script>
@@ -96,22 +96,22 @@
     </header>
     <!-- / header -->
 
-  <section class="collection-head small geopattern" data-pattern-id="Shell学习">
+  <section class="collection-head small geopattern" data-pattern-id="虚拟化技术(一):基本概念">
 <div class="container">
   <div class="columns">
     <div class="column three-fourths">
       <div class="collection-title">
-        <h1 class="collection-header">Shell学习</h1>
+        <h1 class="collection-header">虚拟化技术(一):基本概念</h1>
         <div class="collection-info">
           
           <span class="meta-info">
-            <span class="octicon octicon-calendar"></span> 2021/10/05
+            <span class="octicon octicon-calendar"></span> 2021/10/08
           </span>
           
           
           <span class="meta-info">
             <span class="octicon octicon-file-directory"></span>
-            <a href="http://localhost:4000/categories/#Shell语言" title="Shell语言">Shell语言</a>
+            <a href="http://localhost:4000/categories/#Visualization" title="Visualization">Visualization</a>
           </span>
           
         </div>
@@ -125,88 +125,51 @@
 <div class="columns">
   <div class="column three-fourths" >
     <article class="article-content markdown-body">
-    <p>shell语言学习（一）基本概念、编码规范</p>
+    <p>常见虚拟化技术概念解析</p>
 
 <!--more-->
 
-<h1 id="shell总览">Shell总览</h1>
+<h5 id="常见虚拟化技术概念解析">常见虚拟化技术概念解析：</h5>
 
-<h2 id="shell概念">Shell概念</h2>
+<p>1.虚拟化：一种形式的资源抽象成另一种形式的技术 例如虚存技术</p>
 
-<p>Shell是解释性语言 不需要编译再运行 是在terminal中执行，本质上是脚本</p>
+<p>2.Virtual Machine，简称VM：即虚拟机，它所抽象的是整个物理机，包括CPU、内存和I/O设备</p>
 
-<h2 id="shell类型">Shell类型</h2>
+<p>3.VMM(Virtual Machine Monitor):提供虚拟化的平台</p>
 
-<ul>
-  <li>Bourne Shell(/usr/bin/sh或/bin/sh)</li>
-  <li>Bourne Again Shell(/bin/bash)</li>
-  <li>C Shell(/usr/bin/csh)</li>
-  <li>K Shell(/usr/bin/ksh)</li>
-  <li>zsh</li>
-</ul>
+<p>4.Guest VM:在VMM上运行的虚机</p>
 
-<h3 id="引入">引入</h3>
+<p>5.Guest VM的运行方式：完全虚拟化（Full Virtualization）和类虚拟化（Para Virtualization）</p>
 
-<h3 id="1预定义符号">1.预定义符号</h3>
+<p>6.完全虚拟化：VMM需要正确处理guest所有可能的指令</p>
 
-<p>Linux系统中一般默认使用bash，所以接下来讲解bash中的语法。
-文件开头需要写#! /bin/bash，指明bash为脚本解释器。</p>
+<p>​	最简单直接的方法就是，VMM对guest运行过程中的每一条指令都进行解释和执行，模拟出这条指令执行的效果，这种方法既适用于和VMM相同体系结构的guest，也能用于模拟和VMM不同体系结构的guest（比如物理CPU是x86的，而guest是基于ARM的），其缺点也很明显，就是性能太差。</p>
 
-<h3 id="2运行方式">2.运行方式</h3>
+<p>​	但是有一些指令是要操作特权资源的，比如修改虚拟机的运行模式或者下面物理机的状态，读写时钟或者中断寄存器，这些指令被称为敏感指令，确实不适合由guest直接来控制。</p>
 
-<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">chmod</span> +x xxx.sh <span class="c"># 加权限 xxx.sh是你要运行的sh脚本</span>
-目录+xx.sh
-或者 指定解释器+xx.sh
-</code></pre></div></div>
+<p>​	然而其他的一些非敏感指令，是完全可以在物理CPU上直接执行并返回结果给guest的，VMM只需要截获并模拟guest对敏感指令的执行和对特权资源的访问就可以了，以intel的VT-x和AMD的AMD-V为代表的硬件辅助虚拟化技术，就可以帮助VMM高效地识别和截获这些敏感指令。【1】</p>
 
-<h3 id="3注释">3.注释</h3>
+<p>7：类虚拟化：</p>
 
-<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>:<span class="o">&lt;&lt;</span><span class="no">EOF</span><span class="sh">
-第一行注释
-第二行注释
-第三行注释
-</span><span class="no">EOF
-</span></code></pre></div></div>
+<p>通过二进制代码翻译（binary translation），扫描并修改guest的二进制代码将难以虚拟化的指令转换成支持虚拟化的指令</p>
 
-<h2 id="编码规范">编码规范</h2>
+<h5 id="虚拟化技术架构">虚拟化技术架构：</h5>
 
-<h3 id="1定义变量">1.定义变量:</h3>
+<p>1.<strong>Hypervisor模型</strong></p>
 
-<p>1.1.不能有空格</p>
+<p>具备传统操作系统的功能，还具备虚拟化功能。包括CPU、内存和I/O设备在内的所有物理资源都归VMM所有，因此VMM不仅要负责虚拟机环境的创建和管理，还承担着管理物理资源的责任。</p>
 
-<p>1.2.定义字符串 可以加单引号 也可以双引号，也可以不加</p>
+<p>2.<strong>Host模型</strong></p>
 
-<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">name1</span><span class="o">=</span><span class="s1">'yxc'</span>  <span class="c"># 单引号定义字符串</span>
-<span class="nv">name2</span><span class="o">=</span><span class="s2">"yxc"</span>  <span class="c"># 双引号定义字符串</span>
-<span class="nv">name3</span><span class="o">=</span>yxc    <span class="c"># 也可以不加引号，同样表示字符串</span>
-</code></pre></div></div>
+<p>物理资源由宿主机管理，虚拟化功能由VMM调度，VMM创建出的虚机只是Host主机的一个进程参与调度</p>
 
-<h3 id="2使用变量">2.使用变量</h3>
+<p>3.<strong>混合模型</strong></p>
 
-<p>使用变量可以不用花括号  ${}$,只是为了区分</p>
+<p>混合模型，结合上述两种模型，VMM拥有所有物理资源，但是I/O设备由一个Service OS接管，运行在特权级别，自己主要负责CPU管理和内存管理。</p>
 
-<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">name</span><span class="o">=</span>yxc
-<span class="nb">echo</span> <span class="nv">$name</span>  <span class="c"># 输出yxc</span>
-<span class="nb">echo</span> <span class="k">${</span><span class="nv">name</span><span class="k">}</span>  <span class="c"># 输出yxc</span>
-<span class="nb">echo</span> <span class="k">${</span><span class="nv">name</span><span class="k">}</span>acwing  <span class="c"># 输出yxcacwing</span>
-</code></pre></div></div>
+<p>参考：</p>
 
-<h3 id="3只读变量">3.只读变量</h3>
-
-<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">name</span><span class="o">=</span>glm
-<span class="nb">readonly </span>name
-或者 <span class="nb">declare</span> <span class="nt">-r</span> name
-此时改变name内容会报错
-</code></pre></div></div>
-
-<h3 id="删除变量">删除变量</h3>
-
-<p>unset可以删除变量。</p>
-
-<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">name</span><span class="o">=</span>yxc
-<span class="nb">unset </span>name
-<span class="nb">echo</span> <span class="nv">$name</span>  <span class="c"># 输出空行</span>
-</code></pre></div></div>
+<p>【1】.https://zhuanlan.zhihu.com/p/75649437</p>
 
 
     </article>

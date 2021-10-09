@@ -1,10 +1,15 @@
 ---
 layout: post
-title: 虚拟化技术
+title: 虚拟化技术(一):基本概念
 categories: Visualization
 description: 虚拟化技术 docker 
 keywords: 虚拟化  
+excerpt_separator: <!--more-->
 ---
+
+常见虚拟化技术概念解析
+
+<!--more-->
 
 ##### 常见虚拟化技术概念解析：
 

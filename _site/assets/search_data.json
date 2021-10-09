@@ -21,6 +21,13 @@
   
   
   
+    {
+      "title"    : "Life",
+      "url"      : "http://localhost:4000/life/"
+    } ,
+  
+  
+  
   
   
   
@@ -52,10 +59,24 @@
     } ,
   
     {
-      "title"    : "虚拟化技术",
+      "title"    : "虚拟化技术(一):基本概念",
       "category" : "Visualization",
       
-      "url"      : "http://localhost:4000/2021/10/08/Virtualization/"
+      "url"      : "http://localhost:4000/2021/10/08/Virtualization1/"
+    } ,
+  
+    {
+      "title"    : "虚拟化技术(二):不同VMM在不同架构上的实现",
+      "category" : "Visualization",
+      
+      "url"      : "http://localhost:4000/2021/10/09/Virtualization2/"
+    } ,
+  
+    {
+      "title"    : "Life template",
+      "category" : "Life",
+      
+      "url"      : "http://localhost:4000/life/2021-10-09-Life%20template/"
     } 
   
 ]

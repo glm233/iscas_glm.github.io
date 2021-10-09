@@ -22,4 +22,6 @@ permalink: /article/
 </ol>
 {% endfor %}
 </section>
+
 <!-- /section.content -->
+

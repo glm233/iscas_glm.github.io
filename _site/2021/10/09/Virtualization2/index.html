@@ -19,7 +19,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <title>虚拟化技术 &mdash; glm@iscas</title>
+    <title>虚拟化技术(二):不同VMM在不同架构上的实现 &mdash; glm@iscas</title>
     <link rel="stylesheet" href="http://localhost:4000/assets/vendor/primer-css/css/primer.css">
     <link rel="stylesheet" href="http://localhost:4000/assets/vendor/primer-markdown/dist/user-content.min.css">
     <link rel="stylesheet" href="http://localhost:4000/assets/vendor/octicons/octicons/octicons.css">
@@ -36,11 +36,11 @@
     
 
     
-    <link rel="canonical" href="http://localhost:4000/2021/10/08/Virtualization/">
+    <link rel="canonical" href="http://localhost:4000/2021/10/09/Virtualization2/">
     <link rel="alternate" type="application/atom+xml" title="glm@iscas" href="http://localhost:4000/feed.xml">
     <link rel="shortcut icon" href="http://localhost:4000/favicon.ico">
     
-    <meta property="og:title" content="虚拟化技术">
+    <meta property="og:title" content="虚拟化技术(二):不同VMM在不同架构上的实现">
       
     <meta name="keywords" content="虚拟化">
     <meta name="og:keywords" content="虚拟化">
@@ -52,12 +52,12 @@
     
         
     
-    <meta property="og:url" content="http://localhost:4000/2021/10/08/Virtualization/">
+    <meta property="og:url" content="http://localhost:4000/2021/10/09/Virtualization2/">
     <meta property="og:site_name" content="glm@iscas">
     <meta property="og:type" content="article">
     <meta property="og:locale" content="zh_CN" />
     
-    <meta property="article:published_time" content="2021-10-08">
+    <meta property="article:published_time" content="2021-10-09">
     
     <script src="http://localhost:4000/assets/vendor/jquery/dist/jquery.min.js"></script>
     <script src="http://localhost:4000/assets/js/jquery-ui.js"></script>
@@ -89,25 +89,23 @@
                 
                 <a href="http://localhost:4000/article/" class=" site-header-nav-item" target="" title="Article">Article</a>
                 
+                <a href="http://localhost:4000/life/" class=" site-header-nav-item" target="" title="Life">Life</a>
+                
             </nav>
         </div>
     </header>
     <!-- / header -->
 
-  <head>
-    <script src='//unpkg.com/valine/dist/Valine.min.js'></script>
-
-</head>
-<section class="collection-head small geopattern" data-pattern-id="虚拟化技术">
+  <section class="collection-head small geopattern" data-pattern-id="虚拟化技术(二):不同VMM在">
 <div class="container">
   <div class="columns">
     <div class="column three-fourths">
       <div class="collection-title">
-        <h1 class="collection-header">虚拟化技术</h1>
+        <h1 class="collection-header">虚拟化技术(二):不同VMM在不同架构上的实现</h1>
         <div class="collection-info">
           
           <span class="meta-info">
-            <span class="octicon octicon-calendar"></span> 2021/10/08
+            <span class="octicon octicon-calendar"></span> 2021/10/09
           </span>
           
           
@@ -266,6 +264,10 @@ SimpleJekyllSearch({
                 
                 <li>
                     <a href="http://localhost:4000/article/" title="Article" target="">Article</a>
+                </li>
+                
+                <li>
+                    <a href="http://localhost:4000/life/" title="Life" target="">Life</a>
                 </li>
                 
                 <li><a href="http://localhost:4000/feed.xml"><span class="octicon octicon-rss" style="color:orange;"></span></a></li>

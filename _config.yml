@@ -24,6 +24,10 @@ navs:
   -
     href: /article/
     label: Article
+    
+  -
+    href: /life/
+    label: Life
 
 
   # -
@@ -44,7 +48,6 @@ highlighter: rouge
 paginate: 8
 lsi: false
 quiet: false
-excerpt_separator: "\n\n"
 permalink: /:year/:month/:day/:title/
 plugins:
     - jekyll-github-metadata
@@ -56,9 +59,9 @@ plugins:
     - jemoji
 #     - jekyll-mentions
 collections:
-    wiki:
+    life:
         output: true
-        permalink: /wiki/:path/
+        permalink: /life/:path/
 
 repository: iscas-glm/iscas-glm.github.io
 

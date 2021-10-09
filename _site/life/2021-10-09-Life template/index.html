@@ -19,7 +19,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <title>Shell学习 &mdash; glm@iscas</title>
+    <title>Life template &mdash; glm@iscas</title>
     <link rel="stylesheet" href="http://localhost:4000/assets/vendor/primer-css/css/primer.css">
     <link rel="stylesheet" href="http://localhost:4000/assets/vendor/primer-markdown/dist/user-content.min.css">
     <link rel="stylesheet" href="http://localhost:4000/assets/vendor/octicons/octicons/octicons.css">
@@ -36,28 +36,28 @@
     
 
     
-    <link rel="canonical" href="http://localhost:4000/2021/10/05/shell/">
+    <link rel="canonical" href="http://localhost:4000/life/2021-10-09-Life%20template/">
     <link rel="alternate" type="application/atom+xml" title="glm@iscas" href="http://localhost:4000/feed.xml">
     <link rel="shortcut icon" href="http://localhost:4000/favicon.ico">
     
-    <meta property="og:title" content="Shell学习">
+    <meta property="og:title" content="Life template">
       
     <meta name="keywords" content="shell">
     <meta name="og:keywords" content="shell">
       
-    <meta name="description" content="shell语言学习（一）基本概念、编码规范">
-    <meta name="og:description" content="shell语言学习（一）基本概念、编码规范">
+    <meta name="description" content="">
+    <meta name="og:description" content="">
       
     
     
         
     
-    <meta property="og:url" content="http://localhost:4000/2021/10/05/shell/">
+    <meta property="og:url" content="http://localhost:4000/life/2021-10-09-Life%20template/">
     <meta property="og:site_name" content="glm@iscas">
     <meta property="og:type" content="article">
     <meta property="og:locale" content="zh_CN" />
     
-    <meta property="article:published_time" content="2021-10-05">
+    <meta property="article:published_time" content="2021-10-09">
     
     <script src="http://localhost:4000/assets/vendor/jquery/dist/jquery.min.js"></script>
     <script src="http://localhost:4000/assets/js/jquery-ui.js"></script>
@@ -96,22 +96,22 @@
     </header>
     <!-- / header -->
 
-  <section class="collection-head small geopattern" data-pattern-id="Shell学习">
+  <section class="collection-head small geopattern" data-pattern-id="Life template">
 <div class="container">
   <div class="columns">
     <div class="column three-fourths">
       <div class="collection-title">
-        <h1 class="collection-header">Shell学习</h1>
+        <h1 class="collection-header">Life template</h1>
         <div class="collection-info">
           
           <span class="meta-info">
-            <span class="octicon octicon-calendar"></span> 2021/10/05
+            <span class="octicon octicon-calendar"></span> 2021/10/09
           </span>
           
           
           <span class="meta-info">
             <span class="octicon octicon-file-directory"></span>
-            <a href="http://localhost:4000/categories/#Shell语言" title="Shell语言">Shell语言</a>
+            <a href="http://localhost:4000/categories/#Life" title="Life">Life</a>
           </span>
           
         </div>
@@ -125,89 +125,7 @@
 <div class="columns">
   <div class="column three-fourths" >
     <article class="article-content markdown-body">
-    <p>shell语言学习（一）基本概念、编码规范</p>
-
-<!--more-->
-
-<h1 id="shell总览">Shell总览</h1>
-
-<h2 id="shell概念">Shell概念</h2>
-
-<p>Shell是解释性语言 不需要编译再运行 是在terminal中执行，本质上是脚本</p>
-
-<h2 id="shell类型">Shell类型</h2>
-
-<ul>
-  <li>Bourne Shell(/usr/bin/sh或/bin/sh)</li>
-  <li>Bourne Again Shell(/bin/bash)</li>
-  <li>C Shell(/usr/bin/csh)</li>
-  <li>K Shell(/usr/bin/ksh)</li>
-  <li>zsh</li>
-</ul>
-
-<h3 id="引入">引入</h3>
-
-<h3 id="1预定义符号">1.预定义符号</h3>
-
-<p>Linux系统中一般默认使用bash，所以接下来讲解bash中的语法。
-文件开头需要写#! /bin/bash，指明bash为脚本解释器。</p>
-
-<h3 id="2运行方式">2.运行方式</h3>
-
-<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">chmod</span> +x xxx.sh <span class="c"># 加权限 xxx.sh是你要运行的sh脚本</span>
-目录+xx.sh
-或者 指定解释器+xx.sh
-</code></pre></div></div>
-
-<h3 id="3注释">3.注释</h3>
-
-<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>:<span class="o">&lt;&lt;</span><span class="no">EOF</span><span class="sh">
-第一行注释
-第二行注释
-第三行注释
-</span><span class="no">EOF
-</span></code></pre></div></div>
-
-<h2 id="编码规范">编码规范</h2>
-
-<h3 id="1定义变量">1.定义变量:</h3>
-
-<p>1.1.不能有空格</p>
-
-<p>1.2.定义字符串 可以加单引号 也可以双引号，也可以不加</p>
-
-<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">name1</span><span class="o">=</span><span class="s1">'yxc'</span>  <span class="c"># 单引号定义字符串</span>
-<span class="nv">name2</span><span class="o">=</span><span class="s2">"yxc"</span>  <span class="c"># 双引号定义字符串</span>
-<span class="nv">name3</span><span class="o">=</span>yxc    <span class="c"># 也可以不加引号，同样表示字符串</span>
-</code></pre></div></div>
-
-<h3 id="2使用变量">2.使用变量</h3>
-
-<p>使用变量可以不用花括号  ${}$,只是为了区分</p>
-
-<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">name</span><span class="o">=</span>yxc
-<span class="nb">echo</span> <span class="nv">$name</span>  <span class="c"># 输出yxc</span>
-<span class="nb">echo</span> <span class="k">${</span><span class="nv">name</span><span class="k">}</span>  <span class="c"># 输出yxc</span>
-<span class="nb">echo</span> <span class="k">${</span><span class="nv">name</span><span class="k">}</span>acwing  <span class="c"># 输出yxcacwing</span>
-</code></pre></div></div>
-
-<h3 id="3只读变量">3.只读变量</h3>
-
-<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">name</span><span class="o">=</span>glm
-<span class="nb">readonly </span>name
-或者 <span class="nb">declare</span> <span class="nt">-r</span> name
-此时改变name内容会报错
-</code></pre></div></div>
-
-<h3 id="删除变量">删除变量</h3>
-
-<p>unset可以删除变量。</p>
-
-<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">name</span><span class="o">=</span>yxc
-<span class="nb">unset </span>name
-<span class="nb">echo</span> <span class="nv">$name</span>  <span class="c"># 输出空行</span>
-</code></pre></div></div>
-
+    
 
     </article>
     <div class="share">
