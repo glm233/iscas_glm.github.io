@@ -45,8 +45,8 @@
     <meta name="keywords" content="虚拟化">
     <meta name="og:keywords" content="虚拟化">
       
-    <meta name="description" content="常见虚拟化技术概念解析">
-    <meta name="og:description" content="常见虚拟化技术概念解析">
+    <meta name="description" content="常见虚拟化技术概念解析：1.虚拟化：一种形式的资源抽象成另一种形式的技术 例如虚存技术2.Virtual Machine，简称VM：即虚拟机，它所抽象的是整个物理机，包括CPU、内存和I/O设备3.VMM(Virtual Machine Monitor):提供虚拟化的平台4.Guest VM:在VMM上运行的虚机5.Guest VM的运行方式：完全虚拟化（Full Virtualization）和类虚拟化（Para Virtualization）6.完全虚拟化：VMM需要正确处理guest所有可能的指令">
+    <meta name="og:description" content="常见虚拟化技术概念解析：1.虚拟化：一种形式的资源抽象成另一种形式的技术 例如虚存技术2.Virtual Machine，简称VM：即虚拟机，它所抽象的是整个物理机，包括CPU、内存和I/O设备3.VMM(Virtual Machine Monitor):提供虚拟化的平台4.Guest VM:在VMM上运行的虚机5.Guest VM的运行方式：完全虚拟化（Full Virtualization）和类虚拟化（Para Virtualization）6.完全虚拟化：VMM需要正确处理guest所有可能的指令">
       
     
     
@@ -125,11 +125,7 @@
 <div class="columns">
   <div class="column three-fourths" >
     <article class="article-content markdown-body">
-    <p>常见虚拟化技术概念解析</p>
-
-<!--more-->
-
-<h5 id="常见虚拟化技术概念解析">常见虚拟化技术概念解析：</h5>
+    <h5 id="常见虚拟化技术概念解析">常见虚拟化技术概念解析：</h5>
 
 <p>1.虚拟化：一种形式的资源抽象成另一种形式的技术 例如虚存技术</p>
 
@@ -142,6 +138,8 @@
 <p>5.Guest VM的运行方式：完全虚拟化（Full Virtualization）和类虚拟化（Para Virtualization）</p>
 
 <p>6.完全虚拟化：VMM需要正确处理guest所有可能的指令</p>
+
+<!--more-->
 
 <p>​	最简单直接的方法就是，VMM对guest运行过程中的每一条指令都进行解释和执行，模拟出这条指令执行的效果，这种方法既适用于和VMM相同体系结构的guest，也能用于模拟和VMM不同体系结构的guest（比如物理CPU是x86的，而guest是基于ARM的），其缺点也很明显，就是性能太差。</p>
 

@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans" prefix="og: http://ogp.me/ns#" class="han-init">
+<head>
+
+
+	<!--latex-->
+<script type="text/x-mathjax-config"> MathJax.Hub.Config({ TeX: { equationNumbers: { autoNumber: "all" } } }); </script>
+       <script type="text/x-mathjax-config">
+         MathJax.Hub.Config({
+           tex2jax: {
+             inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+             processEscapes: true
+           }
+         });
+       </script>
+       <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>AcWing 1088. 旅行问题 &mdash; glm@iscas</title>
+    <link rel="stylesheet" href="http://localhost:4000/assets/vendor/primer-css/css/primer.css">
+    <link rel="stylesheet" href="http://localhost:4000/assets/vendor/primer-markdown/dist/user-content.min.css">
+    <link rel="stylesheet" href="http://localhost:4000/assets/vendor/octicons/octicons/octicons.css">
+    <link rel="stylesheet" href="http://localhost:4000/assets/css/components/collection.css">
+    <link rel="stylesheet" href="http://localhost:4000/assets/css/components/repo-card.css">
+    <link rel="stylesheet" href="http://localhost:4000/assets/css/sections/repo-list.css">
+    <link rel="stylesheet" href="http://localhost:4000/assets/css/sections/mini-repo-list.css">
+    <link rel="stylesheet" href="http://localhost:4000/assets/css/components/boxed-group.css">
+    <link rel="stylesheet" href="http://localhost:4000/assets/css/globals/common.css">
+    <link rel="stylesheet" href="http://localhost:4000/assets/vendor/share.js/dist/css/share.min.css">
+    <link rel="stylesheet" href="http://localhost:4000/assets/css/globals/responsive.css">
+    <link rel="stylesheet" href="http://localhost:4000/assets/css/posts/index.css">
+    <!-- Latest compiled and minified CSS -->
+    
+
+    
+    <link rel="canonical" href="http://localhost:4000/2021/10/10/Acwing1088/">
+    <link rel="alternate" type="application/atom+xml" title="glm@iscas" href="http://localhost:4000/feed.xml">
+    <link rel="shortcut icon" href="http://localhost:4000/favicon.ico">
+    
+    <meta property="og:title" content="AcWing 1088. 旅行问题">
+      
+    <meta name="keywords" content="前缀和 单调队列优化dp">
+    <meta name="og:keywords" content="前缀和 单调队列优化dp">
+      
+    <meta name="description" content="题目链接：1088 旅行问题思路：1.破环成链，加上一倍这是常规操作。2.引用两张图：顺时针，我们可以倒着遍历，为什么呢，是因为我们可以在倒着遍历的时候处理到后n个的窗口最小值，然后遍历到前n个的时候我们就可以将第i个和窗口最值比较，只要比这个最值小就可以保证环绕一圈逆时针，注意到有几个不同：1.首先i点是当前点油量减去到前一个点的距离，那么这里就要考虑到第一个点，就是第n个点到下一个点（第一个点）的距离2.其实本质是一样的，那么我们就要正着处理，处理到后n个就处理完了前n给的窗口最小值，然后遍历到后n个我们就可以去比较前缀和哪个大判断是不是可以逆时针往回走一圈了">
+    <meta name="og:description" content="题目链接：1088 旅行问题思路：1.破环成链，加上一倍这是常规操作。2.引用两张图：顺时针，我们可以倒着遍历，为什么呢，是因为我们可以在倒着遍历的时候处理到后n个的窗口最小值，然后遍历到前n个的时候我们就可以将第i个和窗口最值比较，只要比这个最值小就可以保证环绕一圈逆时针，注意到有几个不同：1.首先i点是当前点油量减去到前一个点的距离，那么这里就要考虑到第一个点，就是第n个点到下一个点（第一个点）的距离2.其实本质是一样的，那么我们就要正着处理，处理到后n个就处理完了前n给的窗口最小值，然后遍历到后n个我们就可以去比较前缀和哪个大判断是不是可以逆时针往回走一圈了">
+      
+    
+    
+        
+    
+    <meta property="og:url" content="http://localhost:4000/2021/10/10/Acwing1088/">
+    <meta property="og:site_name" content="glm@iscas">
+    <meta property="og:type" content="article">
+    <meta property="og:locale" content="zh_CN" />
+    
+    <meta property="article:published_time" content="2021-10-10">
+    
+    <script src="http://localhost:4000/assets/vendor/jquery/dist/jquery.min.js"></script>
+    <script src="http://localhost:4000/assets/js/jquery-ui.js"></script>
+    <script type="text/javascript">
+    function toggleMenu() {
+        var nav = document.getElementsByClassName("site-header-nav")[0];
+        if (nav.style.display == "inline-flex") {
+          nav.style.display = "none";
+        } else {
+          nav.style.display = "inline-flex";
+        }
+    }
+    </script>
+	
+
+</head>
+<body class="" data-mz="">
+    <header class="site-header">
+        <div class="container">
+            <h1><a href="http://localhost:4000/" title="glm@iscas"><span class="octicon octicon-mark-github"></span> glm@iscas</a></h1>
+            <button class="collapsed mobile-visible" type="button" onclick="toggleMenu();">
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <nav class="site-header-nav" role="navigation">
+                
+                <a href="http://localhost:4000/" class=" site-header-nav-item" target="" title="Homepage">Homepage</a>
+                
+                <a href="http://localhost:4000/article/" class=" site-header-nav-item" target="" title="Article">Article</a>
+                
+                <a href="http://localhost:4000/life/" class=" site-header-nav-item" target="" title="Life">Life</a>
+                
+            </nav>
+        </div>
+    </header>
+    <!-- / header -->
+
+  <section class="collection-head small geopattern" data-pattern-id="AcWing 1088. 旅行">
+<div class="container">
+  <div class="columns">
+    <div class="column three-fourths">
+      <div class="collection-title">
+        <h1 class="collection-header">AcWing 1088. 旅行问题</h1>
+        <div class="collection-info">
+          
+          <span class="meta-info">
+            <span class="octicon octicon-calendar"></span> 2021/10/10
+          </span>
+          
+          
+          <span class="meta-info">
+            <span class="octicon octicon-file-directory"></span>
+            <a href="http://localhost:4000/categories/#算法题" title="算法题">算法题</a>
+          </span>
+          
+          <span class="meta-info">
+            <span class="octicon octicon-file-directory"></span>
+            <a href="http://localhost:4000/categories/#dp" title="dp">dp</a>
+          </span>
+          
+          <span class="meta-info">
+            <span class="octicon octicon-file-directory"></span>
+            <a href="http://localhost:4000/categories/#前缀和" title="前缀和">前缀和</a>
+          </span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+<!-- / .banner -->
+<section class="container content">
+<div class="columns">
+  <div class="column three-fourths" >
+    <article class="article-content markdown-body">
+    <p>题目链接：</p>
+
+<p><a href="https://www.acwing.com/problem/content/1090/">1088 旅行问题</a></p>
+
+<p><a href="https://imgtu.com/i/5nz1bQ"><img src="https://z3.ax1x.com/2021/10/12/5nz1bQ.jpg" alt="5nz1bQ.jpg" /></a></p>
+
+<p>思路：</p>
+
+<p>1.破环成链，加上一倍这是常规操作。</p>
+
+<p>2.引用两张图：</p>
+
+<p><a href="https://imgtu.com/i/5nzU2V"><img src="https://z3.ax1x.com/2021/10/12/5nzU2V.jpg" alt="5nzU2V.jpg" /></a></p>
+
+<p>顺时针，我们可以倒着遍历，为什么呢，是因为我们可以在倒着遍历的时候处理到后n个的窗口最小值，然后遍历到前n个的时候我们就可以将第i个和窗口最值比较，只要比这个最值小就可以保证环绕一圈</p>
+
+<p><a href="https://imgtu.com/i/5nzN80"><img src="https://z3.ax1x.com/2021/10/12/5nzN80.jpg" alt="5nzN80.jpg" /></a></p>
+
+<p>逆时针，注意到有几个不同：</p>
+
+<p>1.首先i点是当前点油量减去到前一个点的距离，那么这里就要考虑到第一个点，就是第n个点到下一个点（第一个点）的距离</p>
+
+<p>2.其实本质是一样的，那么我们就要正着处理，处理到后n个就处理完了前n给的窗口最小值，然后遍历到后n个我们就可以去比较前缀和哪个大判断是不是可以逆时针往回走一圈了</p>
+
+<!--more-->
+
+<p>这道题目是这个系列最难理解的我推荐先理解这些题目之后再去做这道题目：</p>
+
+<p><a href="https://www.acwing.com/activity/content/problem/content/1458/">最大子序和</a></p>
+
+<p><a href="https://www.acwing.com/activity/content/problem/content/1459/">修剪草坪</a></p>
+
+<p><a href="https://www.acwing.com/activity/content/problem/content/1461/">烽火传递</a></p>
+
+<p><a href="https://www.acwing.com/activity/content/problem/content/1462/">绿色通道</a></p>
+
+<p>代码：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include&lt;iostream&gt;
+#define int long long
+</span><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+<span class="k">const</span> <span class="kt">int</span> <span class="n">N</span><span class="o">=</span><span class="mf">2e6</span><span class="o">+</span><span class="mi">10</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">o</span><span class="p">[</span><span class="n">N</span><span class="p">],</span><span class="n">d</span><span class="p">[</span><span class="n">N</span><span class="p">],</span><span class="n">s</span><span class="p">[</span><span class="n">N</span><span class="p">],</span><span class="n">ok</span><span class="p">[</span><span class="n">N</span><span class="p">],</span><span class="n">n</span><span class="p">,</span><span class="n">q</span><span class="p">[</span><span class="n">N</span><span class="p">];</span>
+<span class="kt">signed</span> <span class="nf">main</span><span class="p">(){</span>
+    <span class="n">cin</span><span class="o">&gt;&gt;</span><span class="n">n</span><span class="p">;</span>
+    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;=</span><span class="n">n</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="n">cin</span><span class="o">&gt;&gt;</span><span class="n">o</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">&gt;&gt;</span><span class="n">d</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="n">n</span><span class="p">]</span><span class="o">=</span><span class="n">o</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">-</span><span class="n">d</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;=</span><span class="mi">2</span><span class="o">*</span><span class="n">n</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">+=</span><span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">];</span>
+    <span class="kt">int</span> <span class="n">hh</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">tt</span><span class="o">=-</span><span class="mi">1</span><span class="p">;</span>
+    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">2</span><span class="o">*</span><span class="n">n</span><span class="p">;</span><span class="n">i</span><span class="p">;</span><span class="n">i</span><span class="o">--</span><span class="p">){</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">hh</span><span class="o">&lt;=</span><span class="n">tt</span><span class="o">&amp;&amp;</span><span class="n">q</span><span class="p">[</span><span class="n">hh</span><span class="p">]</span><span class="o">&gt;</span><span class="n">i</span><span class="o">+</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="n">hh</span><span class="o">++</span><span class="p">;</span>
+        <span class="k">while</span><span class="p">(</span><span class="n">hh</span><span class="o">&lt;=</span><span class="n">tt</span><span class="o">&amp;&amp;</span><span class="n">s</span><span class="p">[</span><span class="n">q</span><span class="p">[</span><span class="n">tt</span><span class="p">]]</span><span class="o">&gt;=</span><span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="n">tt</span><span class="o">--</span><span class="p">;</span>
+        <span class="n">q</span><span class="p">[</span><span class="o">++</span><span class="n">tt</span><span class="p">]</span><span class="o">=</span><span class="n">i</span><span class="p">;</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">i</span><span class="o">&lt;=</span><span class="n">n</span><span class="o">&amp;&amp;</span><span class="n">s</span><span class="p">[</span><span class="n">q</span><span class="p">[</span><span class="n">hh</span><span class="p">]]</span><span class="o">&gt;=</span><span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="n">ok</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">hh</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">tt</span><span class="o">=-</span><span class="mi">1</span><span class="p">;</span>
+    <span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="n">n</span><span class="p">];</span>
+    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;=</span><span class="n">n</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="n">n</span><span class="p">]</span><span class="o">=</span><span class="n">o</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">-</span><span class="n">d</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">];</span>
+    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">2</span><span class="o">*</span><span class="n">n</span><span class="p">;</span><span class="n">i</span><span class="p">;</span><span class="n">i</span><span class="o">--</span><span class="p">)</span><span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">+=</span><span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">];</span>
+    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;=</span><span class="mi">2</span><span class="o">*</span><span class="n">n</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">){</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">hh</span><span class="o">&lt;=</span><span class="n">tt</span><span class="o">&amp;&amp;</span><span class="n">q</span><span class="p">[</span><span class="n">hh</span><span class="p">]</span><span class="o">&lt;</span><span class="n">i</span><span class="o">-</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="n">hh</span><span class="o">++</span><span class="p">;</span>
+        <span class="k">while</span><span class="p">(</span><span class="n">hh</span><span class="o">&lt;=</span><span class="n">tt</span><span class="o">&amp;&amp;</span><span class="n">s</span><span class="p">[</span><span class="n">q</span><span class="p">[</span><span class="n">tt</span><span class="p">]]</span><span class="o">&gt;=</span><span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="n">tt</span><span class="o">--</span><span class="p">;</span>
+        <span class="n">q</span><span class="p">[</span><span class="o">++</span><span class="n">tt</span><span class="p">]</span><span class="o">=</span><span class="n">i</span><span class="p">;</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">i</span><span class="o">&gt;</span><span class="n">n</span><span class="o">&amp;&amp;</span><span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">&lt;=</span><span class="n">s</span><span class="p">[</span><span class="n">q</span><span class="p">[</span><span class="n">hh</span><span class="p">]])</span><span class="n">ok</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="n">n</span><span class="p">]</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;=</span><span class="n">n</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">){</span>
+        <span class="n">ok</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">?</span><span class="n">puts</span><span class="p">(</span><span class="s">"TAK"</span><span class="p">)</span><span class="o">:</span><span class="n">puts</span><span class="p">(</span><span class="s">"NIE"</span><span class="p">);</span>
+    <span class="p">}</span>
+    
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+
+    </article>
+    <div class="share">
+      <div class="share-component"></div>
+    </div>
+    <div class="comment">
+      
+
+  
+
+  
+
+
+
+    </div>
+  </div>
+  <div class="column one-fourth">
+    
+<h3>Search</h3>
+<div id="site_search">
+    <input type="text" id="search_box" placeholder="Search">
+</div>
+
+<ul id="search_results"></ul>
+
+<link rel="stylesheet" type="text/css" href="http://localhost:4000/assets/css/modules/sidebar-search.css">
+<script src="http://localhost:4000/assets/js/simple-jekyll-search.min.js"></script>
+<script src="http://localhost:4000/assets/js/search.js"></script>
+
+<script type="text/javascript">
+SimpleJekyllSearch({
+    searchInput: document.getElementById('search_box'),
+    resultsContainer: document.getElementById('search_results'),
+    json: 'http://localhost:4000/assets/search_data.json',
+    searchResultTemplate: '<li><a href="{url}" title="{desc}">{title}</a></li>',
+    noResultsText: 'No results found',
+    limit: 10,
+    fuzzy: false,
+    exclude: ['Welcome']
+})
+</script>
+
+    <h3>WeChat</h3>
+<img style="border:1px solid #dddddd;height:192px;width:192px" src="/assets/images/qrcode.png" alt="ethereum" />
+
+    
+<h3 class="post-directory-title mobile-hidden">Table of Contents</h3>
+<div id="post-directory-module" class="mobile-hidden">
+  <section class="post-directory">
+  <!-- Links that trigger the jumping -->
+  <!-- Added by javascript below -->
+  <dl></dl>
+  </section>
+</div>
+
+<script src="http://localhost:4000/assets/js/jquery.toc.js"></script>
+
+  </div>
+</div>
+
+<div id="vcomments"></div>
+    <script>
+        new Valine({
+            el: '#vcomments',
+            appId: '3aGyBD5ynY3N4Arg1GQm6LFK-gzGzoHsz',
+            appKey: 'p6CLQdyUAo6FIVxv9WThTPc7'
+        })
+    </script>
+
+
+</section>
+<!-- /section.content -->
+
+    <footer class="container">
+        <div class="site-footer" role="contentinfo">
+            <div class="copyright left mobile-block">
+                    © 2021
+                    <span title="Guo Limin">Guo Limin</span>
+                    <a href="javascript:window.scrollTo(0,0)" class="right mobile-visible">TOP</a>
+            </div>
+
+            <ul class="site-footer-links right mobile-hidden">
+                <li>
+                    <a href="javascript:window.scrollTo(0,0)" >TOP</a>
+                </li>
+            </ul>
+            <a href="" target="_blank" aria-label="view source code">
+                <span class="mega-octicon octicon-mark-github" title="GitHub"></span>
+            </a>
+            <ul class="site-footer-links mobile-hidden">
+                
+                <li>
+                    <a href="http://localhost:4000/" title="Homepage" target="">Homepage</a>
+                </li>
+                
+                <li>
+                    <a href="http://localhost:4000/article/" title="Article" target="">Article</a>
+                </li>
+                
+                <li>
+                    <a href="http://localhost:4000/life/" title="Life" target="">Life</a>
+                </li>
+                
+                <li><a href="http://localhost:4000/feed.xml"><span class="octicon octicon-rss" style="color:orange;"></span></a></li>
+            </ul>
+
+        </div>
+    </footer>
+    <!-- / footer -->
+    <script src="http://localhost:4000/assets/vendor/share.js/dist/js/share.min.js"></script>
+    <script src="http://localhost:4000/assets/js/geopattern.js"></script>
+    <script src="http://localhost:4000/assets/js/prism.js"></script>
+    <link rel="stylesheet" href="http://localhost:4000/assets/css/globals/prism.css">
+    <script>
+      jQuery(document).ready(function($) {
+        // geopattern
+        $('.geopattern').each(function(){
+          $(this).geopattern($(this).data('pattern-id'));
+        });
+       // hljs.initHighlightingOnLoad();
+      });
+    </script>
+
+    
+
+    
+
+    
+
+    
+
+    
+    <div style="display:none">
+      <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-80669434-1', 'auto');
+        ga('send', 'pageview');
+
+      </script>
+    </div>
+    
+	
+	
+</body>
+</html>
+
+<head>
+	<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?e589b334f4625414ca59828e18e21956";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+</head>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    processEscapes: true
+  }
+});
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript">
+</script>
+
+<script src="https://giteement.oss-cn-beijing.aliyuncs.com/oauthcallback.browser.js"></script>
+<script>
+  Oauthcallback();
+</script>
+
+

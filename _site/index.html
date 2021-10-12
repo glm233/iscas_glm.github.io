@@ -121,10 +121,112 @@
                 
                 <li class="repo-list-item">
                     <h3 class="repo-list-name">
+                      <a href="http://localhost:4000/2021/10/10/Acwing1088/">AcWing 1088. 旅行问题</a>
+                    </h3>
+                    <p class="repo-list-description">
+                        题目链接：
+
+1088 旅行问题
+
+
+
+思路：
+
+1.破环成链，加上一倍这是常规操作。
+
+2.引用两张图：
+
+
+
+顺时针，我们可以倒着遍历，为什么呢，是因为我们可以在倒着遍历的时候处理到后n个的窗口最小值，然后遍历到前n个的时候我们就可以将第i个和窗口最值比较，只要比这个最值小就可以保证环绕一圈
+
+
+
+逆时针，注意到有几个不同：
+
+1.首先i点是当前点油量减去到前一个点的距离，那么这里就要考虑到第一个点，就是第n个点到下一个点（第一个点）的距离
+
+2.其实本质是一样的，那么我们就要正着处理，处理到后n个就处理完了前n给的窗口最小值，然后遍历到后n个我们就可以去比较前缀和哪个大判断是不是可以逆时针往回走一圈了
+                    </p>
+                    <p class="repo-list-meta">
+                        <span class="meta-info">
+                          <span class="octicon octicon-calendar"></span> 2021/10/10
+                        </span>
+                        
+                        <span class="meta-info">
+                          <span class="octicon octicon-file-directory"></span>
+                          <a href="http://localhost:4000/categories/#算法题" title="算法题">算法题</a>
+                        </span>
+                        
+                        <span class="meta-info">
+                          <span class="octicon octicon-file-directory"></span>
+                          <a href="http://localhost:4000/categories/#dp" title="dp">dp</a>
+                        </span>
+                        
+                        <span class="meta-info">
+                          <span class="octicon octicon-file-directory"></span>
+                          <a href="http://localhost:4000/categories/#前缀和" title="前缀和">前缀和</a>
+                        </span>
+                        
+                    </p>
+                </li>
+                
+                <li class="repo-list-item">
+                    <h3 class="repo-list-name">
+                      <a href="http://localhost:4000/2021/10/10/Acwing1087/">AcWing 1087. 修剪草坪</a>
+                    </h3>
+                    <p class="repo-list-description">
+                        单调队列优化dp
+
+题目链接：
+
+https://www.acwing.com/problem/content/1089/
+
+
+
+思路见下图：
+                    </p>
+                    <p class="repo-list-meta">
+                        <span class="meta-info">
+                          <span class="octicon octicon-calendar"></span> 2021/10/10
+                        </span>
+                        
+                        <span class="meta-info">
+                          <span class="octicon octicon-file-directory"></span>
+                          <a href="http://localhost:4000/categories/#算法题" title="算法题">算法题</a>
+                        </span>
+                        
+                        <span class="meta-info">
+                          <span class="octicon octicon-file-directory"></span>
+                          <a href="http://localhost:4000/categories/#dp" title="dp">dp</a>
+                        </span>
+                        
+                        <span class="meta-info">
+                          <span class="octicon octicon-file-directory"></span>
+                          <a href="http://localhost:4000/categories/#前缀和" title="前缀和">前缀和</a>
+                        </span>
+                        
+                    </p>
+                </li>
+                
+                <li class="repo-list-item">
+                    <h3 class="repo-list-name">
                       <a href="http://localhost:4000/2021/10/09/Virtualization2/">虚拟化技术(二):不同VMM在不同架构上的实现</a>
                     </h3>
                     <p class="repo-list-description">
                         常见虚拟化技术概念解析：
+
+1.虚拟化：一种形式的资源抽象成另一种形式的技术 例如虚存技术
+
+2.Virtual Machine，简称VM：即虚拟机，它所抽象的是整个物理机，包括CPU、内存和I/O设备
+
+3.VMM(Virtual Machine Monitor):提供虚拟化的平台
+
+4.Guest VM:在VMM上运行的虚机
+
+5.Guest VM的运行方式：完全虚拟化（Full Virtualization）和类虚拟化（Para Virtualization）
+
+6.完全虚拟化：VMM需要正确处理guest所有可能的指令
                     </p>
                     <p class="repo-list-meta">
                         <span class="meta-info">
@@ -144,7 +246,19 @@
                       <a href="http://localhost:4000/2021/10/08/Virtualization1/">虚拟化技术(一):基本概念</a>
                     </h3>
                     <p class="repo-list-description">
-                        常见虚拟化技术概念解析
+                        常见虚拟化技术概念解析：
+
+1.虚拟化：一种形式的资源抽象成另一种形式的技术 例如虚存技术
+
+2.Virtual Machine，简称VM：即虚拟机，它所抽象的是整个物理机，包括CPU、内存和I/O设备
+
+3.VMM(Virtual Machine Monitor):提供虚拟化的平台
+
+4.Guest VM:在VMM上运行的虚机
+
+5.Guest VM的运行方式：完全虚拟化（Full Virtualization）和类虚拟化（Para Virtualization）
+
+6.完全虚拟化：VMM需要正确处理guest所有可能的指令
                     </p>
                     <p class="repo-list-meta">
                         <span class="meta-info">
@@ -161,10 +275,16 @@
                 
                 <li class="repo-list-item">
                     <h3 class="repo-list-name">
-                      <a href="http://localhost:4000/2021/10/06/Acwing/">AcWing 300. 任务安排1</a>
+                      <a href="http://localhost:4000/2021/10/06/Acwing300/">AcWing 300. 任务安排1</a>
                     </h3>
                     <p class="repo-list-description">
                         dp优化+前缀和
+
+
+
+思路：
+
+首先不难想到暴力解法：
                     </p>
                     <p class="repo-list-meta">
                         <span class="meta-info">
@@ -185,6 +305,24 @@
                     </h3>
                     <p class="repo-list-description">
                         shell语言学习（一）基本概念、编码规范
+
+Shell总览
+
+Shell概念
+
+Shell是解释性语言 不需要编译再运行 是在terminal中执行，本质上是脚本
+
+Shell类型
+
+
+  Bourne Shell(/usr/bin/sh或/bin/sh)
+  Bourne Again Shell(/bin/bash)
+  C Shell(/usr/bin/csh)
+  K Shell(/usr/bin/ksh)
+  zsh
+
+
+引入
                     </p>
                     <p class="repo-list-meta">
                         <span class="meta-info">

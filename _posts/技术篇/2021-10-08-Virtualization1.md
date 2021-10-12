@@ -7,10 +7,6 @@ keywords: 虚拟化
 excerpt_separator: <!--more-->
 ---
 
-常见虚拟化技术概念解析
-
-<!--more-->
-
 ##### 常见虚拟化技术概念解析：
 
 1.虚拟化：一种形式的资源抽象成另一种形式的技术 例如虚存技术
@@ -24,6 +20,8 @@ excerpt_separator: <!--more-->
 5.Guest VM的运行方式：完全虚拟化（Full Virtualization）和类虚拟化（Para Virtualization）
 
 6.完全虚拟化：VMM需要正确处理guest所有可能的指令
+
+<!--more-->
 
 ​	最简单直接的方法就是，VMM对guest运行过程中的每一条指令都进行解释和执行，模拟出这条指令执行的效果，这种方法既适用于和VMM相同体系结构的guest，也能用于模拟和VMM不同体系结构的guest（比如物理CPU是x86的，而guest是基于ARM的），其缺点也很明显，就是性能太差。
 

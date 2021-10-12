@@ -55,7 +55,7 @@
       "title"    : "AcWing 300. 任务安排1",
       "category" : "算法题",
       
-      "url"      : "http://localhost:4000/2021/10/06/Acwing/"
+      "url"      : "http://localhost:4000/2021/10/06/Acwing300/"
     } ,
   
     {
@@ -70,6 +70,20 @@
       "category" : "Visualization",
       
       "url"      : "http://localhost:4000/2021/10/09/Virtualization2/"
+    } ,
+  
+    {
+      "title"    : "AcWing 1087. 修剪草坪",
+      "category" : "算法题",
+      
+      "url"      : "http://localhost:4000/2021/10/10/Acwing1087/"
+    } ,
+  
+    {
+      "title"    : "AcWing 1088. 旅行问题",
+      "category" : "算法题",
+      
+      "url"      : "http://localhost:4000/2021/10/10/Acwing1088/"
     } ,
   
     {
