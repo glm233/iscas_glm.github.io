@@ -17,6 +17,13 @@
   
   
   
+    {
+      "title"    : "Categories",
+      "url"      : "http://localhost:4000/categories/"
+    } ,
+  
+  
+  
   
   
   
@@ -83,7 +90,14 @@
       "title"    : "AcWing 1088. 旅行问题",
       "category" : "算法题",
       
-      "url"      : "http://localhost:4000/2021/10/10/Acwing1088/"
+      "url"      : "http://localhost:4000/2021/10/12/Acwing1088/"
+    } ,
+  
+    {
+      "title"    : "Virtualization3",
+      "category" : "",
+      
+      "url"      : "http://localhost:4000/2021/10/12/Virtualization3/"
     } ,
   
     {
