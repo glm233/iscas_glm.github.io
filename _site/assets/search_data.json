@@ -42,6 +42,8 @@
   
   
   
+  
+  
 
   
     {
@@ -98,6 +100,13 @@
       "category" : "",
       
       "url"      : "http://localhost:4000/2021/10/12/Virtualization3/"
+    } ,
+  
+    {
+      "title"    : "AcWing 170. 加成序列",
+      "category" : "算法题",
+      
+      "url"      : "http://localhost:4000/2022/01/20/Iterative-deepening/"
     } ,
   
     {
