@@ -5,6 +5,10 @@
 <lastmod>2021-10-09T00:00:00+08:00</lastmod>
 </url>
 <url>
+<loc>http://localhost:4000/life/2022-02-25-to%20be%20continue/</loc>
+<lastmod>2022-02-25T00:00:00+08:00</lastmod>
+</url>
+<url>
 <loc>http://localhost:4000/2021/10/04/first/</loc>
 <lastmod>2021-10-04T00:00:00+08:00</lastmod>
 </url>
@@ -41,6 +45,10 @@
 <lastmod>2022-01-20T00:00:00+08:00</lastmod>
 </url>
 <url>
+<loc>http://localhost:4000/2022/02/25/to-be-continue/</loc>
+<lastmod>2022-02-25T00:00:00+08:00</lastmod>
+</url>
+<url>
 <loc>http://localhost:4000/article/</loc>
 </url>
 <url>
@@ -58,9 +66,5 @@
 <url>
 <loc>http://localhost:4000/assets/pdf/ICRA2019-Poster.pdf</loc>
 <lastmod>2022-02-22T16:19:38+08:00</lastmod>
-</url>
-<url>
-<loc>http://localhost:4000/images/Screenshot_20211022_201505_cn.soulapp.android.pdf</loc>
-<lastmod>2022-02-22T16:19:39+08:00</lastmod>
 </url>
 </urlset>

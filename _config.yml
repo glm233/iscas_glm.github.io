@@ -1,7 +1,7 @@
 baseurl:
 url: https://iscas-glm.github.io
 title: glm@iscas
-subtitle: "Survival is the first necessity of civilization."
+subtitle: "Rust learner,in Rust we trust"
 description: "glm@iscas's personal page"
 date_format: "ordinal"
 # timezone: Asia/

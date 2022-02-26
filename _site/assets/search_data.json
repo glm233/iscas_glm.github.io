@@ -110,10 +110,24 @@
     } ,
   
     {
+      "title"    : "来京后的十天",
+      "category" : "Life",
+      
+      "url"      : "http://localhost:4000/2022/02/25/to-be-continue/"
+    } ,
+  
+    {
       "title"    : "Life template",
       "category" : "Life",
       
       "url"      : "http://localhost:4000/life/2021-10-09-Life%20template/"
+    } ,
+  
+    {
+      "title"    : "如果有可能，我还是希望多经历一些事",
+      "category" : "Life",
+      
+      "url"      : "http://localhost:4000/life/2022-02-25-to%20be%20continue/"
     } 
   
 ]
