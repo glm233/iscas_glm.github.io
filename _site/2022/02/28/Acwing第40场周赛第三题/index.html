@@ -19,7 +19,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <title>来京后的十天 &mdash; glm@iscas</title>
+    <title>AcWing第40场周赛第三题 &mdash; glm@iscas</title>
     <link rel="stylesheet" href="http://localhost:4000/assets/vendor/primer-css/css/primer.css">
     <link rel="stylesheet" href="http://localhost:4000/assets/vendor/primer-markdown/dist/user-content.min.css">
     <link rel="stylesheet" href="http://localhost:4000/assets/vendor/octicons/octicons/octicons.css">
@@ -36,28 +36,28 @@
     
 
     
-    <link rel="canonical" href="http://localhost:4000/life/2022-02-25-to%20be%20continue/">
+    <link rel="canonical" href="http://localhost:4000/2022/02/28/Acwing%E7%AC%AC40%E5%9C%BA%E5%91%A8%E8%B5%9B%E7%AC%AC%E4%B8%89%E9%A2%98/">
     <link rel="alternate" type="application/atom+xml" title="glm@iscas" href="http://localhost:4000/feed.xml">
     <link rel="shortcut icon" href="http://localhost:4000/favicon.ico">
     
-    <meta property="og:title" content="来京后的十天">
+    <meta property="og:title" content="AcWing第40场周赛第三题">
       
-    <meta name="keywords" content="鼠人的救赎 游记 实习">
-    <meta name="og:keywords" content="鼠人的救赎 游记 实习">
+    <meta name="keywords" content="小技巧">
+    <meta name="og:keywords" content="小技巧">
       
-    <meta name="description" content="来所初期，一切还算顺利？为什么来软件所？好久了，不知不觉在软件所有一段时间了，觉得还是有必要记录一下，之后看看可能与当时写下这些话时会有不同的感悟。">
-    <meta name="og:description" content="来所初期，一切还算顺利？为什么来软件所？好久了，不知不觉在软件所有一段时间了，觉得还是有必要记录一下，之后看看可能与当时写下这些话时会有不同的感悟。">
+    <meta name="description" content="原题链接思路：">
+    <meta name="og:description" content="原题链接思路：">
       
     
     
         
     
-    <meta property="og:url" content="http://localhost:4000/life/2022-02-25-to%20be%20continue/">
+    <meta property="og:url" content="http://localhost:4000/2022/02/28/Acwing%E7%AC%AC40%E5%9C%BA%E5%91%A8%E8%B5%9B%E7%AC%AC%E4%B8%89%E9%A2%98/">
     <meta property="og:site_name" content="glm@iscas">
     <meta property="og:type" content="article">
     <meta property="og:locale" content="zh_CN" />
     
-    <meta property="article:published_time" content="2022-02-25">
+    <meta property="article:published_time" content="2022-02-28">
     
     <script src="http://localhost:4000/assets/vendor/jquery/dist/jquery.min.js"></script>
     <script src="http://localhost:4000/assets/js/jquery-ui.js"></script>
@@ -97,23 +97,23 @@
     <!-- / header -->
 
    <script src='//unpkg.com/valine/dist/Valine.min.js'></script>
-<section class="collection-head small geopattern" data-pattern-id="来京后的十天">
+<section class="collection-head small geopattern" data-pattern-id="AcWing第40场周赛第三题">
 
 <div class="container">
   <div class="columns">
     <div class="column three-fourths">
       <div class="collection-title">
-        <h1 class="collection-header">来京后的十天</h1>
+        <h1 class="collection-header">AcWing第40场周赛第三题</h1>
         <div class="collection-info">
           
           <span class="meta-info">
-            <span class="octicon octicon-calendar"></span> 2022/02/25
+            <span class="octicon octicon-calendar"></span> 2022/02/28
           </span>
           
           
           <span class="meta-info">
             <span class="octicon octicon-file-directory"></span>
-            <a href="http://localhost:4000/categories/#Life" title="Life">Life</a>
+            <a href="http://localhost:4000/categories/#算法题" title="算法题">算法题</a>
           </span>
           
         </div>
@@ -127,81 +127,69 @@
 <div class="columns">
   <div class="column three-fourths" >
     <article class="article-content markdown-body">
-    <h1 id="来所初期一切还算顺利">来所初期，一切还算顺利？</h1>
+    <p><a href="https://www.acwing.com/problem/content/4310/">原题链接</a></p>
 
-<h2 id="为什么来软件所">为什么来软件所？</h2>
+<p><img src="https://cdn.jsdelivr.net/gh/hututu-tech/IMG-gongfeng@main/2022/02/28/621ce835827a5.png" alt="" /></p>
 
-<p>好久了，不知不觉在软件所有一段时间了，觉得还是有必要记录一下，之后看看可能与当时写下这些话时会有不同的感悟。</p>
+<p>思路：</p>
 
 <!--more-->
 
-<p>我为什么要来软件所呢？这说来就话长了，回想起当初九月保研的时候还想记录一下我那旷日持久的长战线推免过程，但是想到最终结果不是太好也就一直搁置着没有去写，随着时间的推移更是不太提得起兴趣了，但好在来所不久，还是有记录的，只能说来软件所是缘分吧，不太想展开具体的过程了，概括性的说法就是：夏令营拿了offer，预推免没有更好的去处啦。至于为什么在大四下这个节点选择到软件所做毕设，倒可以分析一下：</p>
+<p>两个字符串a,b其实位数最多也才18位，那么我们可以枚举18*10，当然前提条件是枚举当前位的这个数字必须要在a中出现</p>
 
-<p>最初的时候，和一起保研到自动化所、计算所、软件所的聊了，在他们口中以及当时对接实验室的博士生学长所说，保研的同学最后一学期来所实习是必要的，提前熟悉实验室环境、早做毕设，总之就是被唬的一愣一愣的，再加上国科大院校研究生录取要求要毕设良以上，为了不翻车在推免系统点完之后那晚上我就联系了老师，然后给了几篇论文让看看，先学一下Rust…</p>
+<p>从大到小可以保证答案最优，那如何检验呢？</p>
 
-<p>但自始至终，老师也没有说过让我来，说实话倒是我自己提出来去所里实习的，因为身边的一起去国科大的同学都要去了，就，，确实有点从众吧，怪我。</p>
+<p>这里稍微需要转换一下，那就是我们要找到一种剩下数字的放置方式使得组成的总的那个数小于b，贪心一下要是这个东西小于那么就是我们组的数越小越好，</p>
 
-<div align="center"><img src="https://cdn.jsdelivr.net/gh/hututu-tech/IMG-gongfeng@main/2022/02/26/621a33295a31d.jpg" style="zoom: 33%; " /></div>
+<p>具体看代码，思路阐述完毕</p>
 
-<div align="center">当时的申请表</div>
+<p>说实话这个技巧还是很聪明的</p>
 
-<p>​</p>
+<p>代码：</p>
 
-<h2 id="来所周围及工作环境">来所，周围及工作环境</h2>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;iostream&gt;
+#include &lt;cstring&gt;
+#include &lt;algorithm&gt;
+</span><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+<span class="n">string</span> <span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">cnt</span><span class="p">[</span><span class="mi">10</span><span class="p">];</span>
+<span class="n">string</span> <span class="nf">get_min</span><span class="p">(</span><span class="kt">int</span> <span class="n">x</span><span class="p">){</span>
+    <span class="n">string</span> <span class="n">res</span><span class="o">=</span><span class="n">to_string</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+    <span class="n">cnt</span><span class="p">[</span><span class="n">x</span><span class="p">]</span><span class="o">--</span><span class="p">;</span>
+    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="mi">10</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">){</span>
+        <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">j</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">j</span><span class="o">&lt;</span><span class="n">cnt</span><span class="p">[</span><span class="n">i</span><span class="p">];</span><span class="n">j</span><span class="o">++</span><span class="p">)</span>
+            <span class="n">res</span><span class="o">+=</span><span class="n">to_string</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="n">cnt</span><span class="p">[</span><span class="n">x</span><span class="p">]</span><span class="o">++</span><span class="p">;</span>
+    <span class="k">return</span> <span class="n">res</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">cin</span><span class="o">&gt;&gt;</span><span class="n">a</span><span class="o">&gt;&gt;</span><span class="n">b</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">n</span><span class="o">=</span><span class="n">a</span><span class="p">.</span><span class="n">size</span><span class="p">(),</span><span class="n">m</span><span class="o">=</span><span class="n">b</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">n</span><span class="o">&lt;</span><span class="n">m</span><span class="p">){</span>
+        <span class="n">sort</span><span class="p">(</span><span class="n">a</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="n">a</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span><span class="n">greater</span><span class="o">&lt;</span><span class="kt">char</span><span class="o">&gt;</span><span class="p">());</span>
+        <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="n">a</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">else</span><span class="p">{</span>
+        <span class="k">for</span><span class="p">(</span><span class="kt">char</span> <span class="n">c</span><span class="o">:</span><span class="n">a</span><span class="p">)</span><span class="n">cnt</span><span class="p">[</span><span class="n">c</span><span class="o">-</span><span class="sc">'0'</span><span class="p">]</span><span class="o">++</span><span class="p">;</span>
+        <span class="n">string</span> <span class="n">res</span><span class="p">;</span>
+        <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">n</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">){</span>
+            <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">j</span><span class="o">=</span><span class="mi">9</span><span class="p">;;</span><span class="n">j</span><span class="o">--</span><span class="p">){</span>
+                <span class="k">if</span><span class="p">(</span><span class="n">cnt</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">&amp;&amp;</span><span class="n">res</span><span class="o">+</span><span class="n">get_min</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="o">&lt;=</span><span class="n">b</span><span class="p">){</span>
+                    <span class="n">cnt</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">--</span><span class="p">;</span>
+                    <span class="n">res</span><span class="o">+=</span><span class="n">to_string</span><span class="p">(</span><span class="n">j</span><span class="p">);</span>
+                    <span class="k">break</span><span class="p">;</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="n">res</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
 
-<p>怎么来的？飞机过来的，来之前在干嘛呢？首先是21年9-12纯纯摆烂3个月：Rust学了个皮毛，linux相关也只看了一部分kvm和io的基本知识，天天倒是玩个不亦乐乎，抽空还学了车，不过欢乐是真的欢乐，然后就是放假在家混了一个月，都没锻炼，该见的人都见了一遍之后十五就出发啦</p>
 
-<p>当时吧，下飞机还挺冷的，-6℃来着，接下来容许我记一下流水账，坐首都机场线到三元桥，然后那会已经下午四点了，我赶紧打了滴去软件所园区那，因为实验室行政听闻是公务员作息，到了之后先把行李放在宿舍楼（前一天和之前已经有去所里几天的同学交流过报道心得了😀），之后见到行政老师，呃呃，这边还是说下，真不见人影，不过好在很快啊，就填了一个表，然后我看到竟然是作为临时工来实习，每个月发2k？？有点震惊，感觉还可以啊，来之前感觉到所里纯纯受罪，什么，你们不信？</p>
+</code></pre></div></div>
 
-<div align="center"><img src="https://cdn.jsdelivr.net/gh/hututu-tech/IMG-gongfeng@main/2022/02/26/621a373544f2e.jpg" style="zoom: 30%; " /></div>
-
-<h3 id="关于宿舍">关于宿舍？</h3>
-
-<p>这个雀氏比学校好，没看错，就是一人间，为什么是一人间呢，因为本来有三个人(算上我),然后那两个学长不回来，跑外头租房了，独卫、大概20平，有两桌子，一个人住简直不要太爽，当然把后来的某同学也实名羡慕到了哈哈😏 在十一楼，这么说吧，相当于厦大学生公寓那边一晚百元级别的民宿，还行应该是</p>
-
-<h3 id="食堂呢">食堂呢？</h3>
-
-<p>食堂？狗都不吃! 忘了说了，软件所这边后勤全部外包，包括出入门禁、食堂餐饮、电梯、灯光水暖、厕所全部是承包给一家物业公司，那么大家懂的都懂了，肯定贵呗，不过质量也没有那么好！</p>
-
-<p>早餐还行，一顿6块就吃的挺不错了，午饭起步25+，但是你还吃的不够好，😭晚饭，和午饭一样垃圾罢了，</p>
-
-<p>吃了几天那些菜名倒背如流，千篇一律的可怕…</p>
-
-<h3 id="实验室这个很重要">实验室？这个很重要</h3>
-
-<p>非常好！很适合我，但不一定适合大家，没有人管我了属于是，唯一的约束就是每周一和老师还有学长的一次组会，已经企业微信的员工考勤，不过那玩意宿舍就能签到，很奇怪</p>
-
-<p>来到实验室了才知道，原来都是一些学长（学姐就一个），基本不好破冰，说不上话，他们都忙着写论文</p>
-
-<p>设备嘛，报道的时候就领了一个显示器，不过后来发现性能不太行，不过主机配置还是很ok的，16G内存i710700不过是核显630、固态1T，打lol60-80帧吧..</p>
-
-<p>话说电脑还是自己从0开始组装的，插各种线，启动盘是实验室老师给的，真·白手起家</p>
-
-<p>上一张工位图：<img src="https://cdn.jsdelivr.net/gh/hututu-tech/IMG-gongfeng@main/2022/02/26/621a3aed3ff71.jpg" alt="" /></p>
-
-<p>总体环境还行，老师平时不在实验室，在另一栋楼，都靠自己啦</p>
-
-<h3 id="周边">周边</h3>
-
-<p>可能要失望了，北四环很荒凉的，其实没什么吃喝玩乐的地方，就肯德基麦当劳，看电影的话也蛮远的，不过目前还没怎么出去，因为最近北京的晚上非常冷</p>
-
-<p>说起来，作为南方人，看到雪也没觉得很稀奇….</p>
-
-<h3 id="一些差异的总结">一些差异的总结</h3>
-
-<p>1.从南到北，菜的分量是递增的，除了公寓旁边那个东北菜馆😠</p>
-
-<p>2.你在南方的艳阳里大雪纷飞 我在北方的寒夜里四季如春，这句话前半段可能实现有点难，后半段我深有体会，在房间里吃雪糕完全没问题，怪不得北方冬天冷饮和冰棍还有卖，暖气热着呢😅</p>
-
-<p>3.一开始以为晒衣服很难，但其实放屋里几个小时就干了，屋子里干燥的得买加湿器</p>
-
-<h2 id="尾">尾：</h2>
-
-<p>立个flag，两周产出一篇吧，内容不限：可以是时评、也可以是吐槽，尽量花心思叙述好、表达自己的思想感情</p>
-
-<p>现在基本算是进入daily routine，尽快做完毕设吧，争取暑假找个实习呜呜上次谈好的在厦门的实习因为来所毕设泡汤了😥</p>
-
-<p>其实还想谈点针对最近发生一些事的感受的，不过…留到之后吧</p>
 
     </article>
     <div class="share">

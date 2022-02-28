@@ -117,6 +117,13 @@
     } ,
   
     {
+      "title"    : "AcWing第40场周赛第三题",
+      "category" : "算法题",
+      
+      "url"      : "http://localhost:4000/2022/02/28/Acwing%E7%AC%AC40%E5%9C%BA%E5%91%A8%E8%B5%9B%E7%AC%AC%E4%B8%89%E9%A2%98/"
+    } ,
+  
+    {
       "title"    : "Life template",
       "category" : "Life",
       
@@ -124,7 +131,7 @@
     } ,
   
     {
-      "title"    : "如果有可能，我还是希望多经历一些事",
+      "title"    : "来京后的十天",
       "category" : "Life",
       
       "url"      : "http://localhost:4000/life/2022-02-25-to%20be%20continue/"
