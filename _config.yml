@@ -1,4 +1,4 @@
-baseurl:
+baseurl: https://iscas-glm.github.io
 url: https://iscas-glm.github.io
 title: glm@iscas
 subtitle: "Rust learner,in Rust we trust"
